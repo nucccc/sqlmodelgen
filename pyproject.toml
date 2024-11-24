@@ -1,0 +1,14 @@
+[project]
+name = "sqlmodelgen"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "sqloxide>=0.1.51",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.3.3",
+]
