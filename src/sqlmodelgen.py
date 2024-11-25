@@ -13,22 +13,30 @@ class ColData:
 	data_type: str
 
 
-def convert_data_type(data_type_parsed) -> str:
+not_null_option = {'name': None, 'option': 'NotNull'}
+
+
+def convert_data_type(data_type_parsed, options_parsed) -> str:
 	type_key = next(key for key in data_type_parsed.keys())
+	result = 'any'
 	if type_key == 'Int':
-		return 'int'
+		result = 'int'
 	if type_key == 'Varchar':
-		return 'str'
-	return 'any'
+		result = 'str'
+	#eventually checking options
+	if options_parsed is not None and not_null_option not in options_parsed:
+		result += ' | None'
+	return result
 
 
 def collect_cols_data(ctparsed : dict) -> Iterator[ColData]:
 	cols_parsed = ctparsed['columns']
 	for elem in cols_parsed:
 		data_type_parsed = elem['data_type']
+		options_parsed = elem['options']
 		yield ColData(
 			name = elem['name']['value'],
-			data_type = convert_data_type(data_type_parsed) 
+			data_type = convert_data_type(data_type_parsed, options_parsed) 
 		)
 
 
