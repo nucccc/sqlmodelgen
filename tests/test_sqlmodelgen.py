@@ -1,6 +1,6 @@
 import pytest
 
-from sqlmodelgen import gen_code
+from src.sqlmodelgen import gen_code
 
 def test_sqlmodelgen():
     schema = '''CREATE TABLE Persons (
