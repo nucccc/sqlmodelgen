@@ -39,3 +39,22 @@ class Persons(SQLModel, table = True):
 	FirstName: str
 	Address: str | None
 	City: str | None'''
+
+def test_sqlmodelgen_primary_key():
+    schema = '''CREATE TABLE Hero (
+	id INTEGER NOT NULL, 
+	name VARCHAR NOT NULL, 
+	secret_name VARCHAR NOT NULL, 
+	age INTEGER, 
+	PRIMARY KEY (id)
+);'''
+
+    print(gen_code(schema))
+
+    assert gen_code(schema) == '''from sqlmodel import SQLModel
+
+class Hero(SQLModel, table = True):
+\tid: int | None
+\tname: str
+\tsecret_name: str
+\tage: int | None'''
