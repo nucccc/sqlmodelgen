@@ -9,7 +9,9 @@ def test_collect_ir():
     City varchar(255) NOT NULL
 );'''
 
-    table_ir = parse_ir(schema)
+    schema_ir = parse_ir(schema)
+
+    table_ir = schema_ir.get_table_ir('Persons')
 
     assert table_ir.name == 'Persons'
     assert table_ir.col_irs == [

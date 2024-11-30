@@ -21,6 +21,22 @@ class TableIR:
     col_irs: list[ColIR]
 
 
+@dataclass
+class SchemaIR:
+	table_irs: list[TableIR]
+
+	def get_table_ir(self, name: str) -> TableIR | None:
+		'''
+		get_table_ir returns the intermediate representation of a table
+		given a name
+		'''
+		for table_ir in self.table_irs:
+			if table_ir.name != name:
+				continue
+			return table_ir
+		return None
+
+
 def get_primary_key(ctparsed : dict) -> str | None:
 	'''
 	get_primary_key returns the name of the column representing the primary key,
@@ -39,14 +55,25 @@ def get_primary_key(ctparsed : dict) -> str | None:
 	return None
 
 
+def iter_ctparseds(parsed : list[dict]) -> Iterator[dict]:
+	for elem in parsed:
+		ctparsed = elem.get('CreateTable')
+		yield ctparsed
+
+
 def ctparsed_from_parsed(parsed : list[dict]) -> dict:
 	return parsed[0]['CreateTable']
 
 
-def parse_ir(schema: str, dialect: str = 'generic') -> TableIR:
-    parsed = parse_sql(schema, dialect)
-    ctparsed = ctparsed_from_parsed(parsed)
-    return collect_ir(ctparsed)
+def parse_ir(schema: str, dialect: str = 'generic') -> SchemaIR:
+	parsed = parse_sql(schema, dialect)
+
+	table_irs: list[TableIR] = list()
+	for ctparsed in iter_ctparseds(parsed):
+		table_irs.append(collect_ir(ctparsed))
+	return SchemaIR(
+		table_irs=table_irs
+	)
 
 
 def table_name_from_ctparsed(ctparsed: dict) -> str:
