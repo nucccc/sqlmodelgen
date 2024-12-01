@@ -87,6 +87,8 @@ def convert_data_type(
 		result = 'int'
 	if type_key == 'Varchar' or type_key == 'Text':
 		result = 'str'
+	if type_key == 'Boolean':
+		result = 'bool'
 	return result
 
 
