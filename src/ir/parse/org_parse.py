@@ -8,7 +8,8 @@ from dataclasses import dataclass
 
 @dataclass
 class ColumnOptions:
-    pass
+    unique: bool
+    not_null: bool
 
 
 @dataclass
@@ -16,7 +17,7 @@ class TableConstraints:
     pass
 
 
-def get_data_type(data_type_parsed : str | dict) -> str:
+def collect_data_type(data_type_parsed : str | dict) -> str:
     '''
     at times the data type could be either a string or a dictionary,
     and a string could be returned out of it
@@ -40,3 +41,23 @@ def get_data_type(data_type_parsed : str | dict) -> str:
 
     # by default return any
     return 'any'
+
+
+def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOptions:
+    '''
+    collect_column_options takes the list at the "option" keyword for
+    every column, and derives options out of these
+    '''
+    col_opts = ColumnOptions(
+        unique=False,
+        not_null=False
+    )
+    
+    for elem in options_parsed:
+        option = elem.get('option')
+        if option == 'NotNull':
+            col_opts.not_null = True
+        elif type(option) is dict and 'Unique' in option.keys():
+            col_opts.unique = True
+        
+    return col_opts
