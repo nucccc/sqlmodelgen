@@ -10,6 +10,7 @@ from dataclasses import dataclass
 class ColumnOptions:
     unique: bool
     not_null: bool
+    primary_key: bool
 
 
 @dataclass
@@ -50,7 +51,8 @@ def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOption
     '''
     col_opts = ColumnOptions(
         unique=False,
-        not_null=False
+        not_null=False,
+        primary_key=False
     )
 
     for elem in options_parsed:
@@ -59,6 +61,7 @@ def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOption
             col_opts.not_null = True
         elif type(option) is dict and 'Unique' in option.keys():
             col_opts.unique = True
+            col_opts.primary_key = option['Unique']['is_primary']
         
     return col_opts
 

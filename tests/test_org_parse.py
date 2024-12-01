@@ -28,25 +28,28 @@ def test_collect_column_option():
         []
     ) == ColumnOptions(
         unique=False,
-        not_null=False
+        not_null=False,
+        primary_key=False
     )
     
     assert collect_column_options(
         [{'name': None, 'option': 'NotNull'}]
     ) == ColumnOptions(
         unique=False,
-        not_null=True
+        not_null=True,
+        primary_key=False
     )
 
     assert collect_column_options(
         [
             {'name': None, 'option': {
-                'Unique': {'is_primary': False, 'characteristics': None}
+                'Unique': {'is_primary': True, 'characteristics': None}
             }}
         ]
     ) == ColumnOptions(
         unique=True,
-        not_null=False
+        not_null=False,
+        primary_key=True
     )
 
     assert collect_column_options(
@@ -58,7 +61,8 @@ def test_collect_column_option():
         ]
     ) == ColumnOptions(
         unique=True,
-        not_null=True
+        not_null=True,
+        primary_key=False
     )
 
 
