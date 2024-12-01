@@ -14,7 +14,7 @@ class ColumnOptions:
 
 @dataclass
 class TableConstraints:
-    pass
+    primary_key: list[str] | None
 
 
 def collect_data_type(data_type_parsed : str | dict) -> str:
@@ -52,7 +52,7 @@ def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOption
         unique=False,
         not_null=False
     )
-    
+
     for elem in options_parsed:
         option = elem.get('option')
         if option == 'NotNull':
@@ -61,3 +61,18 @@ def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOption
             col_opts.unique = True
         
     return col_opts
+
+
+def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> TableConstraints:
+    tab_constraints = TableConstraints(
+        primary_key=None
+    )
+    
+    for constraint in tab_constraints_parsed:
+        primary_key_constraint = constraint.get('PrimaryKey')
+        if primary_key_constraint:
+            tab_constraints.primary_key = [
+                elem['value'] for elem in primary_key_constraint['columns']
+            ]
+
+    return tab_constraints

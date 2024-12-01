@@ -3,7 +3,9 @@ import pytest
 from src.ir.parse.org_parse import (
     collect_data_type,
     collect_column_options,
-    ColumnOptions
+    collect_table_contraints,
+    ColumnOptions,
+    TableConstraints
 )
 
 
@@ -38,8 +40,8 @@ def test_collect_column_option():
 
     assert collect_column_options(
         [
-            {"name": None, "option": {
-                "Unique": {"is_primary": False, "characteristics": None}
+            {'name': None, 'option': {
+                'Unique': {'is_primary': False, 'characteristics': None}
             }}
         ]
     ) == ColumnOptions(
@@ -49,12 +51,44 @@ def test_collect_column_option():
 
     assert collect_column_options(
         [
-            {"name": None, "option": "NotNull"},
-            {"name": None, "option": {
-                "Unique": {"is_primary": False, "characteristics": None}
+            {'name': None, 'option': 'NotNull'},
+            {'name': None, 'option': {
+                'Unique': {'is_primary': False, 'characteristics': None}
             }}
         ]
     ) == ColumnOptions(
         unique=True,
         not_null=True
+    )
+
+
+def test_collect_table_contraints():
+    assert collect_table_contraints(
+        []
+    ) == TableConstraints(
+        primary_key=None
+    )
+
+    assert collect_table_contraints(
+        [
+            {
+               'PrimaryKey':{
+                  'name':None,
+                  'index_name':None,
+                  'index_type':None,
+                  'columns':[
+                     {
+                        'value':'id',
+                        'quote_style':None
+                     }
+                  ],
+                  'index_options':[
+                     
+                  ],
+                  'characteristics':None
+               }
+            }
+        ]
+    ) == TableConstraints(
+        primary_key=['id']
     )
