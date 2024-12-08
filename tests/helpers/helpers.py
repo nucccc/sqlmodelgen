@@ -1,27 +1,6 @@
 import ast
 from dataclasses import dataclass
 
-# TODO: this code validation data could have some unit testing... down the road
-@dataclass
-class ClassAstParse:
-    class_name: str
-    private_table_name: str | None
-    #class_lines: list[ast.AST]
-    class_cols: list[ast.AnnAssign]
-
-
-@dataclass
-class ModuleAstParse:
-    sqlmodel_imports: set[str]
-    classes_parses: list[ClassAstParse]
-
-
-def verify_module(
-    generated_code: str,
-    expected_code_data: ModuleAstParse
-) -> bool:
-    return True
-
 
 # then I need a portion of code to actually handle the type of a
 # sqlmodel column
@@ -89,3 +68,146 @@ def type_data_from_binop(
         type_name=type_name,
         optional=True
     )
+
+
+@dataclass
+class ColumnAstInfo:
+    col_name: str
+    type_data: TypeData
+    # TODO: some code indicating whether a field was generated
+    # or not
+
+
+@dataclass
+class ClassAstInfo:
+    class_name: str
+    table_name: str | None
+    cols_info: dict[str, ColumnAstInfo]
+
+
+@dataclass
+class ModuleAstInfo:
+    sqlmodel_imports: set[str]
+    classes_info: dict[str, ClassAstInfo]
+
+
+def verify_module(
+    generated_code: str,
+    expected_code_info: ModuleAstInfo
+) -> bool:
+    code_info = collect_code_info(generated_code)
+
+    assert code_info == expected_code_info
+
+
+def collect_code_info(generated_code: str) -> ModuleAstInfo:
+    ast_mod = ast.parse(generated_code)
+
+    return mod_info_from_ast_mod(ast_mod)
+
+
+def mod_info_from_ast_mod(ast_mod: ast.Module) -> ModuleAstInfo:
+    sqlmodel_imports: set[str] = set()
+    classes_info: dict[str, ClassAstInfo] = dict()
+
+    for stat in ast_mod.body:
+        # collecting class
+        if type(stat) is ast.ClassDef:
+            class_key = stat.name
+            class_info = collect_sqlmodel_class(stat)
+
+            if class_info is not None:
+                classes_info[class_key] = class_info
+        
+        # collecting the imports
+        if type(stat) is ast.ImportFrom:
+            sqlmodel_imports = sqlmodel_imports.union(collect_sqlmodel_imports(stat))
+
+
+    return ModuleAstInfo(
+        sqlmodel_imports=sqlmodel_imports,
+        classes_info=classes_info
+    )
+
+
+def collect_sqlmodel_imports(stat: ast.ImportFrom) -> set[str]:
+    # in case the module is not sqlmodel just return
+    if stat.module != 'sqlmodel':
+        return {}
+    
+    sqlmodel_imports: set[str] = {
+        alias.name
+        for alias in stat.names
+    }
+
+    return sqlmodel_imports
+
+
+def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
+    '''
+    this function ensures that SQLModel is among the bases and that
+    table == True is there, otherwise it just returns None
+    '''
+    if not is_valid_sqlmodel_class(class_def):
+        return None
+
+    class_name = class_def.name
+    table_name: str | None = None
+    cols_info: dict[str, ColumnAstInfo] = dict()
+    
+    for stat in class_def.body:
+        # trying to collect the table name from the assignment
+        if type(stat) is ast.Assign:
+            candidate_table_name = collect_table_name(stat)
+            if candidate_table_name is None:
+                continue 
+            table_name = candidate_table_name
+        elif type(stat) is ast.AnnAssign:
+            col_info = collect_col_info(stat)
+            cols_info[col_info.col_name] = col_info
+
+    return ClassAstInfo(
+        class_name=class_name,
+        table_name=table_name,
+        cols_info=cols_info
+    )
+
+
+def collect_col_info(stat: ast.AnnAssign) -> ColumnAstInfo:
+    type_data = type_data_from_ast_annassign(stat)
+
+    return ColumnAstInfo(
+        col_name=stat.target.id,
+        type_data=type_data
+    )
+
+
+def collect_table_name(stat: ast.Assign) -> str | None:
+    if len(stat.targets) != 1:
+        return None
+    target = stat.targets[0]
+    if type(target) is not ast.Name:
+        return None
+    if target.id != '__tablename__':
+        return None
+    if type(stat.value) is not ast.Constant:
+        return None
+    return stat.value.value
+
+
+def is_valid_sqlmodel_class(class_def: ast.ClassDef) -> bool:
+    # ensuring that the class inherits from 'SQLModel'
+    for base in class_def.bases:
+        if type(base) is ast.Name and base.id == 'SQLModel':
+            break
+    else:
+        return False
+    
+    # ensuring that table=True is provided among the keywords
+    for kw in class_def.keywords:
+        if kw.arg == 'table' and type(kw.value) is ast.Constant and kw.value.value == True:
+            break
+    else:
+        return False
+
+    return True
