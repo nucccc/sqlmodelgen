@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Iterator
 
 from sqloxide import parse_sql
@@ -8,12 +8,23 @@ not_null_option = {'name': None, 'option': 'NotNull'}
 
 
 @dataclass
+class FKIR:
+	'''
+	FKIR is the foreign key intermediate representation
+	'''
+	target_table: str
+	target_column: str
+
+
+@dataclass
 class ColIR:
 	name: str
 	data_type: str
 	primary_key: bool
 	not_null: bool
 	unique: bool
+	default: any = None
+	foreign_key: FKIR | None = None
 
 
 @dataclass
