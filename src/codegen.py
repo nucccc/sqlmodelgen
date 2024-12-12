@@ -66,8 +66,34 @@ def gen_col_line(col_ir: ColIR) -> tuple[str, bool]:
     col_line = f'\t{col_ir.name}: {col_ir.data_type}'
     if not col_ir.not_null:
         col_line += ' | None'
-    if col_ir.primary_key:
-        col_line += ' = Field(primary_key=True)'
+
+    # generating field keywords
+    fields_kwords_list: list[str] = gen_fields_kwords(col_ir)
+
+    # in case i have any field keyword then I need to add a Field
+    # assignemnt, in such case I flag the usage of the field keyword
+    if len(fields_kwords_list) > 0:
+        fields_kwords = ', '.join(fields_kwords_list)
+        col_line += f' = Field({fields_kwords})'
         used_field = True
 
+    # this code section is temporarily commented out, this shall be
+    # removed once it is verified that the program outputs Field
+    # correctly
+    #if col_ir.primary_key:
+    #    col_line += ' = Field(primary_key=True)'
+    #    used_field = True
+
     return col_line, used_field
+
+def gen_fields_kwords(col_ir: ColIR) -> list[str]:
+    '''
+    gen_fields_kwords generates a list of keywords which shall go
+    into the Field assignment
+    '''
+    result: list[str] = list()
+
+    if col_ir.primary_key:
+        result.append('primary_key=True')
+
+    return result
