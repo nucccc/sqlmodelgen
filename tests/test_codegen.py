@@ -39,11 +39,13 @@ def test_gen_table_code():
         )
     )
 
+    print(table_code)
+
     generated_code_info = collect_code_info(table_code)
 
     expected_code_info = collect_code_info('''class a_table(SQLModel, table = True):
     __tablename__ = 'a_table'
-    id: int | None
+    id: int | None = Field(primary_key=True)
     name: str
     email: str | None
 ''')

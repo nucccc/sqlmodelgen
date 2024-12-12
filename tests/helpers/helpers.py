@@ -74,8 +74,7 @@ def type_data_from_binop(
 class ColumnAstInfo:
     col_name: str
     type_data: TypeData
-    # TODO: some code indicating whether a field was generated
-    # or not
+    field_kws: dict[str, any] | None = None
 
 
 @dataclass
@@ -176,10 +175,27 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
 def collect_col_info(stat: ast.AnnAssign) -> ColumnAstInfo:
     type_data = type_data_from_ast_annassign(stat)
 
+    # collecting eventual field keywords
+    fields_kws = collect_field_kws(stat)
+
     return ColumnAstInfo(
         col_name=stat.target.id,
-        type_data=type_data
+        type_data=type_data,
+        field_kws=fields_kws
     )
+
+def collect_field_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+    if stat.value is None:
+        return None
+    
+    call: ast.Call = stat.value
+    if type(call) is not ast.Call:
+        return None
+
+    return {
+        kw.arg: kw.value.value
+        for kw in call.keywords
+    }
 
 
 def collect_table_name(stat: ast.Assign) -> str | None:

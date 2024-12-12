@@ -57,7 +57,10 @@ class a_table(SQLModel, table = True):
                         type_data=TypeData(
                             type_name='int',
                             optional=True
-                        )
+                        ),
+                        field_kws={
+                            'primary_key':True
+                        }
                     ),
                     'name':ColumnAstInfo(
                         col_name='name',
