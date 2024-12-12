@@ -49,8 +49,6 @@ def test_sqlmodelgen_primary_key():
 	PRIMARY KEY (id)
 );'''
 
-    print(gen_code(schema))
-
     assert gen_code(schema) == '''from sqlmodel import SQLModel
 
 class Hero(SQLModel, table = True):

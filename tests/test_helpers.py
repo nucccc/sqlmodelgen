@@ -43,8 +43,6 @@ class a_table(SQLModel, table = True):
 	name: str
 	email: str | None''')
 
-    print(code_info)
-
     assert code_info == ModuleAstInfo(
         sqlmodel_imports={'SQLModel'},
         classes_info={

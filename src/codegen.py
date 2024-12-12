@@ -77,13 +77,6 @@ def gen_col_line(col_ir: ColIR) -> tuple[str, bool]:
         col_line += f' = Field({fields_kwords})'
         used_field = True
 
-    # this code section is temporarily commented out, this shall be
-    # removed once it is verified that the program outputs Field
-    # correctly
-    #if col_ir.primary_key:
-    #    col_line += ' = Field(primary_key=True)'
-    #    used_field = True
-
     return col_line, used_field
 
 def gen_fields_kwords(col_ir: ColIR) -> list[str]:
