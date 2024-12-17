@@ -1,7 +1,7 @@
 [project]
 name = "sqlmodelgen"
-version = "0.1.0"
-description = "Add your description here"
+version = "0.0.1"
+description = "Generate SQLModel code from SQL"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
