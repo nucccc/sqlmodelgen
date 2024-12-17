@@ -29,8 +29,14 @@ class ColIR:
 
 @dataclass
 class TableIR:
-    name: str
-    col_irs: list[ColIR]
+	name: str
+	col_irs: list[ColIR]
+
+	def get_col_ir(self, name: str) -> ColIR | None:
+		for col_ir in self.col_irs:
+			if col_ir.name == name:
+				return col_ir
+		return None
 
 
 @dataclass

@@ -14,8 +14,16 @@ class ColumnOptions:
 
 
 @dataclass
+class FKConstraint:
+    column_name: str
+    foreign_table: str
+    foreign_column: str
+
+
+@dataclass
 class TableConstraints:
     primary_key: list[str] | None
+    foreign_key: list[FKConstraint] | None = None
 
 
 def collect_data_type(data_type_parsed : str | dict) -> str:
@@ -77,5 +85,23 @@ def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> Ta
             tab_constraints.primary_key = [
                 elem['value'] for elem in primary_key_constraint['columns']
             ]
+            continue
+
+        # NOTE: for now this shall just support the case of foreign key
+        # constraints regarding just one 
+        fk_constraint = constraint.get('ForeignKey')
+        if fk_constraint:
+            column_name = fk_constraint['columns'][0]['value']
+            foreign_table = fk_constraint['foreign_table'][0]['value']
+            foreign_column = fk_constraint['referred_columns'][0]['value']
+            if tab_constraints.foreign_key is None:
+                tab_constraints.foreign_key = list()
+            tab_constraints.foreign_key.append(
+                FKConstraint(
+                    column_name=column_name,
+                    foreign_table=foreign_table,
+                    foreign_column=foreign_column
+                )
+            )
 
     return tab_constraints

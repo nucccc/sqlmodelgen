@@ -10,7 +10,8 @@ from sqloxide import parse_sql
 from src.ir.ir import (
 	ColIR,
 	TableIR,
-	SchemaIR
+	SchemaIR,
+	FKIR
 )
 from src.ir.parse.org_parse import (
 	collect_column_options,
@@ -37,19 +38,34 @@ def iter_ctparseds(parsed : list[dict]) -> Iterator[dict]:
 		
 
 def collect_table_ir(ctparsed: dict) -> TableIR:
-    table_name = table_name_from_ctparsed(ctparsed)
-    col_irs: list[ColIR] = list(collect_cols_data(ctparsed))
+	table_name = table_name_from_ctparsed(ctparsed)
+	col_irs: list[ColIR] = list(collect_cols_data(ctparsed))
 	
-    constraints = collect_table_contraints(ctparsed['constraints'])
-    if constraints.primary_key is not None:
-        for col_ir in col_irs:
-            if col_ir.name in constraints.primary_key:
-                col_ir.primary_key = True
+	constraints = collect_table_contraints(ctparsed['constraints'])
+	if constraints.primary_key is not None:
+		for col_ir in col_irs:
+			if col_ir.name in constraints.primary_key:
+				col_ir.primary_key = True
 
-    return TableIR(
+	table_ir = TableIR(
 		name=table_name,
 		col_irs=col_irs
-    )
+	)
+
+	# adding foreign key constraint
+	if constraints.foreign_key is not None:
+		for fk_constraint in constraints.foreign_key:
+			col_ir = table_ir.get_col_ir(fk_constraint.column_name)
+
+			if col_ir is None:
+				continue
+
+			col_ir.foreign_key = FKIR(
+				target_table=fk_constraint.foreign_table,
+				target_column=fk_constraint.foreign_column
+			)
+
+	return table_ir
 
 
 def table_name_from_ctparsed(ctparsed: dict) -> str:
