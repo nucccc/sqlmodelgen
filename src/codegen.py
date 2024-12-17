@@ -89,4 +89,7 @@ def gen_fields_kwords(col_ir: ColIR) -> list[str]:
     if col_ir.primary_key:
         result.append('primary_key=True')
 
+    if col_ir.foreign_key is not None:
+        result.append(f'foreign_key="{col_ir.foreign_key.target_table}.{col_ir.foreign_key.target_column}"')
+
     return result
