@@ -5,3 +5,5 @@ dist/
 
 .coverage
 htmlcov/
+
+src/sqlmodelgen.egg-info
