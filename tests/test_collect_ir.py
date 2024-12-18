@@ -1,5 +1,5 @@
-from src.ir.ir import ColIR
-from src.ir.parse.ir_parse import ir_parse
+from ir.ir import ColIR
+from ir.parse.ir_parse import ir_parse
 
 def test_collect_ir():
     schema = '''CREATE TABLE Persons (

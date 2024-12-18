@@ -3,8 +3,8 @@ import pytest
 import ast
 from dataclasses import dataclass
 
-from src.ir.ir import SchemaIR, TableIR, ColIR, FKIR
-from src.codegen import CodeGen, gen_table_code, gen_code
+from ir.ir import SchemaIR, TableIR, ColIR, FKIR
+from codegen import CodeGen, gen_table_code, gen_code
 
 from helpers.helpers import collect_code_info
 

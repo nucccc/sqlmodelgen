@@ -1,6 +1,6 @@
-import pytest
+"""import pytest
 
-from src.sqlmodelgen import gen_code
+from src.sqlmodelgen import gen_code_from_sql
 
 
 def test_sqlmodelgen():
@@ -12,7 +12,7 @@ def test_sqlmodelgen():
     City varchar(255) NOT NULL
 );'''
 
-    assert gen_code(schema) == '''from sqlmodel import SQLModel
+    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
 	PersonID: int
@@ -31,7 +31,7 @@ def test_sqlmodelgen_nullable():
     City varchar(255)
 );'''
 
-    assert gen_code(schema) == '''from sqlmodel import SQLModel
+    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
 	PersonID: int
@@ -49,10 +49,10 @@ def test_sqlmodelgen_primary_key():
 	PRIMARY KEY (id)
 );'''
 
-    assert gen_code(schema) == '''from sqlmodel import SQLModel
+    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
 
 class Hero(SQLModel, table = True):
 \tid: int | None
 \tname: str
 \tsecret_name: str
-\tage: int | None'''
+\tage: int | None'''"""

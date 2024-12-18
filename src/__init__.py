@@ -1,0 +1,1 @@
+from .sqlmodelgen import gen_code_from_sql
