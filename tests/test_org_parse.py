@@ -1,6 +1,6 @@
 import pytest
 
-from ir.parse.org_parse import (
+from sqlmodelgen.ir.parse.org_parse import (
     collect_data_type,
     collect_column_options,
     collect_table_contraints,

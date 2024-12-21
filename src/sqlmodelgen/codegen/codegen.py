@@ -3,7 +3,7 @@ this module generates sqlmode code from an intermediate representation
 '''
 
 
-from ir.ir import SchemaIR, TableIR, ColIR
+from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR
 
 
 def gen_code(schema_ir: SchemaIR) -> str:

@@ -7,13 +7,13 @@ from typing import Iterator
 
 from sqloxide import parse_sql
 
-from ir.ir import (
+from sqlmodelgen.ir.ir import (
 	ColIR,
 	TableIR,
 	SchemaIR,
 	FKIR
 )
-from ir.parse.org_parse import (
+from sqlmodelgen.ir.parse.org_parse import (
 	collect_column_options,
 	collect_data_type,
     collect_table_contraints
