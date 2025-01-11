@@ -9,8 +9,8 @@ class Model:
         self.ir = table_ir
         self.class_name = gen_class_name(table_ir.name, class_names)
 
-        self.relationships: list[Relationship] = list()
-        self.referencing_relationships: list[Relationship] = list()	
+        self.m2o_relationships: list[Relationship] = list()
+        self.o2m_relationships: list[Relationship] = list()	
 
 
     @property
@@ -39,24 +39,24 @@ def get_model_by_table_name(models: Iterable[Model], table_name: str) -> Model:
 
 @dataclass
 class Relationship:
-	listing_model: Model
-	referencing_model: Model
-	listing_rel_name: str | None = None
-	referencing_rel_name: str | None = None
+	o2m_model: Model
+	m2o_model: Model
+	o2m_rel_name: str | None = None
+	m2o_rel_name: str | None = None
 
 	def determine_rel_names(self):
 		# TODO: this does not guarantee that two relationships do not have the same name
-		if self.rel_name is None:
-			rel_name = self.foreign_table.name + 's'
+		if self.m2o_rel_name is None:
+			rel_name = self.o2m_model.table_name + 's'
 			# i keep adding an s until the 
-			while self.main_table.get_col_ir(rel_name) is not None:
+			while self.m2o_model.ir.get_col_ir(rel_name) is not None:
 				rel_name = rel_name + 's'
-			self.rel_name = rel_name
-		if self.foreign_rel_name is None:
-			foreign_rel_name = self.main_table.name
-			while self.foreign_table.get_col_ir(foreign_rel_name) is not None:
-				foreign_rel_name = foreign_rel_name + 's'
-			self.foreign_rel_name = foreign_rel_name
+			self.m2o_rel_name = rel_name
+		if self.o2m_rel_name is None:
+			rel_name = self.m2o_model.table_name
+			while self.o2m_model.ir.get_col_ir(rel_name) is not None:
+				rel_name = rel_name + 's'
+			self.o2m_rel_name = rel_name
 			
 def arrange_relationships(model_irs: list[Model]):
     for model in model_irs:
@@ -65,12 +65,12 @@ def arrange_relationships(model_irs: list[Model]):
             if col_ir.foreign_key is None:
                 continue
             
-            listing_model: Model = get_model_by_table_name(model_irs, col_ir.foreign_key.target_table)
+            m2o_model: Model = get_model_by_table_name(model_irs, col_ir.foreign_key.target_table)
 
             rel = Relationship(
-				listing_model=listing_model,
-				referencing_model=model
+				m2o_model=m2o_model,
+				o2m_model=model
             )
 			
-            model.relationships.append(rel)
-            listing_model.referencing_relationships.append(rel)
+            model.o2m_relationships.append(rel)
+            m2o_model.m2o_relationships.append(rel)

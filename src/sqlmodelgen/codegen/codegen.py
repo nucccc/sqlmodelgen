@@ -38,6 +38,8 @@ def generate_sqlmodels(schema_ir: SchemaIR, generate_relationships: bool = False
 
     arrange_relationships(model_irs)
 
+    #import pdb; pdb.set_trace()
+
     return _gen_code(model_irs, generate_relationships)
 
 
@@ -109,26 +111,27 @@ def _gen_rels_lines(
     rels_lines: list[str] = list()
 
     # TODO: verify this!!!
-    for rel in model.relationships:
+    for rel in model.m2o_relationships:
         rel.determine_rel_names()
 
-        rel_name = rel.rel_name
-        class_name = rel.main_table.name
-        foreign_rel_name = rel.foreign_rel_name
-        line = gen_rel_line_list(rel_name, class_name, foreign_rel_name)
+        line = gen_rel_line_m20(
+            m2o_rel_name=rel.m2o_rel_name,
+            o2m_class_name=rel.o2m_model.class_name,
+            o2m_rel_name=rel.o2m_rel_name
+        )
 
         rels_lines.append(line)
 
         imports_necessary.relationship = True
 
-    for foreign_rel in model.referencing_relationships:
-        foreign_rel.determine_rel_names()
-
-        rel_name = foreign_rel.rel_name
-        foreign_rel_name = foreign_rel.foreign_rel_name
-        foreign_class_name = foreign_rel.foreign_table.name
+    for rel in model.o2m_relationships:
+        rel.determine_rel_names()
         
-        line = gen_rel_line_one(foreign_rel_name, foreign_class_name, rel_name)
+        line = gen_rel_line_o2m(
+            o2m_rel_name=rel.o2m_rel_name,
+            m2o_class_name=rel.m2o_model.class_name,
+            m2o_rel_name=rel.m2o_rel_name
+        )
         
         rels_lines.append(line)
 
@@ -157,39 +160,39 @@ def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
     return model_irs
 
 
-def gen_rels_lines(table_ir: TableIR) -> list[str]:
+"""def gen_rels_lines(table_ir: TableIR) -> list[str]:
     rels_lines: list[str] = list()
 
     for rel in table_ir.relationships:
         rel.determine_rel_names()
-        rel_name = rel.rel_name
+        rel_name = rel.listing_rel_name
         class_name = rel.main_table.name
         foreign_rel_name = rel.foreign_rel_name
         rels_lines.append(f'{rel_name}: list[\'{class_name}\'] = Relationship(back_populates=\'{foreign_rel_name}\')')
     for foreign_rel in table_ir.foreign_relationships:
         foreign_rel.determine_rel_names()
-        rel_name = foreign_rel.rel_name
+        rel_name = foreign_rel.
         foreign_rel_name = foreign_rel.foreign_rel_name
         foreign_class_name = foreign_rel.foreign_table.name
-        rels_lines.append(f'{foreign_rel_name}: \'{foreign_class_name}\' | None = Relationship(back_populates=\'{rel_name}\')')
+        rels_lines.append(f'{foreign_rel_name}: \'{foreign_class_name}\' | None = Relationship(back_populates=\'{rel_name}\')')"""
 
 
-def gen_rel_line_list(
-    rel_name: str,
-    class_name: str,
-    foreign_rel_name: str,
+def gen_rel_line_m20(
+    m2o_rel_name: str,
+    o2m_class_name: str,
+    o2m_rel_name: str,
     tab_level: str = DEFAULT_TAB_LEVEL
 ) -> str:
-    return f'{tab_level}{rel_name}: list[\'{class_name}\'] = Relationship(back_populates=\'{foreign_rel_name}\')'
+    return f'{tab_level}{m2o_rel_name}: list[\'{o2m_class_name}\'] = Relationship(back_populates=\'{o2m_rel_name}\')'
 
 
-def gen_rel_line_one(
-    foreign_rel_name: str,
-    foreign_class_name: str,
-    rel_name: str,
+def gen_rel_line_o2m(
+    o2m_rel_name: str,
+    m2o_class_name: str,
+    m2o_rel_name: str,
     tab_level: str = DEFAULT_TAB_LEVEL
 ) -> str:
-    return f'{tab_level}{foreign_rel_name}: \'{foreign_class_name}\' | None = Relationship(back_populates=\'{rel_name}\')'
+    return f'{tab_level}{o2m_rel_name}: \'{m2o_class_name}\' | None = Relationship(back_populates=\'{m2o_rel_name}\')'
 
 
 def gen_col_line(col_ir: ColIR) -> tuple[str, bool]:
