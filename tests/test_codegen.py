@@ -4,7 +4,7 @@ import ast
 from dataclasses import dataclass
 
 from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR, FKIR
-from sqlmodelgen.codegen.codegen import CodeGen, gen_table_code, gen_code
+from sqlmodelgen.codegen.codegen import CodeGen, gen_table_code, gen_code, generate_sqlmodels
 
 from helpers.helpers import collect_code_info
 
@@ -171,3 +171,35 @@ class table2(SQLModel, table = True):
     )
 
     assert generated_code_info == expected_code_info
+
+
+def test_generate_sqlmodels():
+    schema_ir = SchemaIR(
+        table_irs=[
+            TableIR(
+                name='table0',
+                col_irs=[
+                    ColIR(
+                        name='id',
+                        data_type='BIGSERIAL',
+                        primary_key=True,
+                        not_null=True,
+                        unique=True
+                    ),
+                    ColIR(
+                        name='username',
+                        data_type='Text',
+                        primary_key=False,
+                        not_null=True,
+                        unique=True
+                    )
+                ]
+            )
+        ]
+    )
+
+    sqlmodel_code = generate_sqlmodels(schema_ir)
+
+    print(sqlmodel_code)
+
+    assert False
