@@ -158,3 +158,75 @@ def test_generate_sqlmodels():
     print(sqlmodel_code)
 
     #assert False
+
+def test_gencode_with_relationships():
+
+    generated_code = generate_sqlmodels(
+        SchemaIR(
+            table_irs=[
+                TableIR(
+                    name='table1',
+                    col_irs=[
+                        ColIR(
+                            name='id',
+                            data_type='int',
+                            primary_key=True,
+                            not_null=False,
+                            unique=True
+                        ),
+                        ColIR(
+                            name='name',
+                            data_type='str',
+                            primary_key=False,
+                            not_null=True,
+                            unique=True
+                        )
+                    ]
+                ),
+                TableIR(
+                    name='table2',
+                    col_irs=[
+                        ColIR(
+                            name='id',
+                            data_type='int',
+                            primary_key=True,
+                            not_null=False,
+                            unique=True
+                        ),
+                        ColIR(
+                            name='fid',
+                            data_type='int',
+                            primary_key=False,
+                            not_null=False,
+                            unique=False,
+                            foreign_key=FKIR(
+                                target_table='table1',
+                                target_column='id'
+                            )
+                        )
+                    ]
+                )
+            ]
+        ),
+        generate_relationships=True
+    )
+
+    print(generated_code)
+
+    generated_code_info = collect_code_info(generated_code)
+
+    expected_code_info = collect_code_info(
+        '''from sqlmodel import SQLModel, Field
+
+class Table1(SQLModel, table = True):
+    __tablename__ = 'table1'
+    id: int | None = Field(primary_key=True)
+    name: str
+    
+class Table2(SQLModel, table = True):
+    __tablename__ = 'table2'
+    id: int | None = Field(primary_key=True)
+    fid: int | None = Field(foreign_key="table1.id")'''
+    )
+
+    assert generated_code_info == expected_code_info
