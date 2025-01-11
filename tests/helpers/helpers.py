@@ -32,8 +32,8 @@ def type_data_from_ast_annotation(
         )
     elif node_type is ast.BinOp:
         return type_data_from_binop(ast_node)
-    else:
-        raise TypeError
+    elif node_type is ast.Subscript:
+        return type_data_from_subscript(ast_node)
     
 
 def type_data_from_binop(
@@ -55,7 +55,9 @@ def type_data_from_binop(
             if term.value is None:
                 none_present = True
             else:
-                raise ValueError
+                #import pdb; pdb.set_trace()
+                #raise ValueError
+                type_name = term.value
         elif term_type is ast.Name:
             type_name = term.id
     
@@ -68,6 +70,13 @@ def type_data_from_binop(
         type_name=type_name,
         optional=True
     )
+
+
+def type_data_from_subscript(ast_node: ast.Subscript) -> TypeData:
+    return TypeData(
+            type_name=f'{ast_node.value.id}[{ast_node.slice.value}]',
+            optional=False
+        )
 
 
 @dataclass
