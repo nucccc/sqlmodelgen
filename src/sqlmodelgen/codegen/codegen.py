@@ -71,34 +71,13 @@ def _gen_model_code(
     header_code = f'''class {model.class_name}(SQLModel, table = True):
 \t__tablename__ = '{model.table_name}' '''
     
-    model_lines = _gen_model_lines(model)
+    model_lines = _gen_model_lines(model, generate_relationships, imports_necessary)
 
     cols_code = '\n'.join(model_lines)
     code = f'{header_code}\n{cols_code}'
 
     return code
 
-
-
-    
-    cols_lines: list[str] = list()
-    for col_ir in table_ir.col_irs:
-        col_line, used_field_in_col = gen_col_line(col_ir)
-        cols_lines.append(col_line)
-        if used_field_in_col:
-            used_field = True
-
-    # TODO: in here it would be nice to actually gen the relationship lines
-    if gen_relationships:
-        rels_lines = gen_rels_lines(table_ir)
-
-    cols_lines.append()
-    
-    cols_code = '\n'.join(cols_lines)
-
-    code = f'{header_code}\n{cols_code}'
-
-    return code, used_field
 
 def _gen_model_lines(
     model: Model,
@@ -166,112 +145,16 @@ def _gen_import_code(imports_necessary) -> str:
 
     return import_code
 
-'''def build_model_irs(table_irs: Iterable[ModelIR]) -> list[ModelIR]:
-    model_irs: list[ModelIR] = list()
+def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
+    model_irs: list[Model] = list()
     class_names: set[str] = set()
 
     for table_ir in table_irs:
-        model_ir = ModelIR(table_ir, class_names)
+        model_ir = Model(table_ir, class_names)
         class_names.add(model_ir.class_name)
         model_irs.append(model_ir)
 
-    return model_irs'''
-
-
-'''def arrange_relationships(model_irs : list[ModelIR]) -> None:
-    for model_ir in model_irs:'''
-
-
-class SchemaGen:
-
-    def __init__(self, schema_ir: SchemaIR):
-        self.table_gens = [
-            TableGen(table_ir)
-            for table_ir in schema_ir.table_irs
-        ]
-        self.imports_necessary = ImportsNecessary()
-
-    def _determine_class_names(self):
-        class_names = set()
-
-        for table_gen in self.table_gens:
-            class_name = table_gen.gen_table_name(class_names)
-            class_names.add(class_name)
-
-    
-    def generate_code(self, generate_relationships: bool = False) -> str:
-        self._determine_class_names()
-
-        models_code = self._generate_models_code(generate_relationships)
-        import_code = self._generate_import_code()
-        
-        return f'{import_code}\n\n{models_code}'
-
-
-    def _generate_import_code(self) -> str:
-        import_code = 'from sqlmodel import SQLModel'
-
-        additional_imports = ', '.join(self.imports_necessary.iter_to_import())
-        if additional_imports:
-            import_code = import_code + ', ' + additional_imports
-
-        return import_code
-
-class CodeGen():
-
-    def __init__(self, schema_ir: SchemaIR):
-        # flag used to check if the Field class shall be imported
-        self._import_field: bool = False
-        self._schema_ir = schema_ir
-
-    
-    def generate_code(self) -> str:
-        models_code = self._generate_models_code()
-        import_code = self._generate_import_code()
-        return f'{import_code}\n\n{models_code}'
-
-    
-    def _generate_models_code(self) -> str:
-        table_models_code: list[str] = list()
-        for table_ir in self._schema_ir.table_irs:
-            table_code, used_field = gen_table_code(table_ir)
-            table_models_code.append(table_code)
-            if used_field:
-                self._import_field = True
-        return '\n\n'.join(table_models_code)
-    
-    
-    def _generate_import_code(self):
-        import_code = 'from sqlmodel import SQLModel'
-        if self._import_field:
-            import_code += ', Field'
-        return import_code
-    
-
-def gen_table_code(table_ir: TableIR, gen_relationships: bool = False) -> tuple[str, bool]:
-    used_field = False
-    
-    header_code = f'''class {table_ir.name}(SQLModel, table = True):
-\t__tablename__ = '{table_ir.name}' '''
-    
-    cols_lines: list[str] = list()
-    for col_ir in table_ir.col_irs:
-        col_line, used_field_in_col = gen_col_line(col_ir)
-        cols_lines.append(col_line)
-        if used_field_in_col:
-            used_field = True
-
-    # TODO: in here it would be nice to actually gen the relationship lines
-    if gen_relationships:
-        rels_lines = gen_rels_lines(table_ir)
-
-    cols_lines.append()
-    
-    cols_code = '\n'.join(cols_lines)
-
-    code = f'{header_code}\n{cols_code}'
-
-    return code, used_field
+    return model_irs
 
 
 def gen_rels_lines(table_ir: TableIR) -> list[str]:

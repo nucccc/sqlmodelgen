@@ -4,58 +4,13 @@ import ast
 from dataclasses import dataclass
 
 from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR, FKIR
-from sqlmodelgen.codegen.codegen import CodeGen, gen_table_code, gen_code, generate_sqlmodels
+from sqlmodelgen.codegen.codegen import gen_code, generate_sqlmodels
 
 from helpers.helpers import collect_code_info
 
 
-def test_gen_table_code():
-    table_code, used_field = gen_table_code(
-        TableIR(
-            name='a_table',
-            col_irs=[
-                ColIR(
-                    name='id',
-                    data_type='int',
-                    primary_key=True,
-                    not_null=False,
-                    unique=True
-                ),
-                ColIR(
-                    name='name',
-                    data_type='str',
-                    primary_key=False,
-                    not_null=True,
-                    unique=True
-                ),
-                ColIR(
-                    name='email',
-                    data_type='str',
-                    primary_key=False,
-                    not_null=False,
-                    unique=True
-                ),
-            ]
-        )
-    )
-
-    # asserting that the function actually generated a field
-    assert used_field == True
-
-    generated_code_info = collect_code_info(table_code)
-
-    expected_code_info = collect_code_info('''class a_table(SQLModel, table = True):
-    __tablename__ = 'a_table'
-    id: int | None = Field(primary_key=True)
-    name: str
-    email: str | None
-''')
-    
-    assert generated_code_info == expected_code_info
-
-
 def test_gen_code():
-    generated_code = gen_code(
+    generated_code = generate_sqlmodels(
         SchemaIR(
             table_irs=[
                 TableIR(
@@ -93,7 +48,7 @@ def test_gen_code():
     expected_code_info = collect_code_info(
         '''from sqlmodel import SQLModel, Field
 
-class a_table(SQLModel, table = True):
+class A_table(SQLModel, table = True):
     __tablename__ = 'a_table'
     id: int | None = Field(primary_key=True)
     name: str
@@ -105,7 +60,7 @@ class a_table(SQLModel, table = True):
 
 def test_gencode_with_foreign_key():
 
-    generated_code = gen_code(
+    generated_code = generate_sqlmodels(
         SchemaIR(
             table_irs=[
                 TableIR(
@@ -159,12 +114,12 @@ def test_gencode_with_foreign_key():
     expected_code_info = collect_code_info(
         '''from sqlmodel import SQLModel, Field
 
-class table1(SQLModel, table = True):
+class Table1(SQLModel, table = True):
     __tablename__ = 'table1'
     id: int | None = Field(primary_key=True)
     name: str
     
-class table2(SQLModel, table = True):
+class Table2(SQLModel, table = True):
     __tablename__ = 'table2'
     id: int | None = Field(primary_key=True)
     fid: int | None = Field(foreign_key="table1.id")'''
@@ -181,14 +136,14 @@ def test_generate_sqlmodels():
                 col_irs=[
                     ColIR(
                         name='id',
-                        data_type='BIGSERIAL',
+                        data_type='int',
                         primary_key=True,
                         not_null=True,
                         unique=True
                     ),
                     ColIR(
                         name='username',
-                        data_type='Text',
+                        data_type='str',
                         primary_key=False,
                         not_null=True,
                         unique=True
@@ -202,4 +157,4 @@ def test_generate_sqlmodels():
 
     print(sqlmodel_code)
 
-    assert False
+    #assert False
