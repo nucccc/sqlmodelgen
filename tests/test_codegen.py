@@ -216,17 +216,19 @@ def test_gencode_with_relationships():
     generated_code_info = collect_code_info(generated_code)
 
     expected_code_info = collect_code_info(
-        '''from sqlmodel import SQLModel, Field
+        '''from sqlmodel import SQLModel, Field, Relationship
 
 class Table1(SQLModel, table = True):
-    __tablename__ = 'table1'
-    id: int | None = Field(primary_key=True)
-    name: str
-    
+	__tablename__ = 'table1' 
+	id: int | None = Field(primary_key=True)
+	name: str
+	table2s: list['Table2'] = Relationship(back_populates='table1')
+
 class Table2(SQLModel, table = True):
-    __tablename__ = 'table2'
-    id: int | None = Field(primary_key=True)
-    fid: int | None = Field(foreign_key="table1.id")'''
+	__tablename__ = 'table2' 
+	id: int | None = Field(primary_key=True)
+	fid: int | None = Field(foreign_key="table1.id")
+	table1: 'Table1' | None = Relationship(back_populates='table2s')'''
     )
 
     assert generated_code_info == expected_code_info

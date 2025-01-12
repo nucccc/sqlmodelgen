@@ -84,6 +84,7 @@ class ColumnAstInfo:
     col_name: str
     type_data: TypeData
     field_kws: dict[str, any] | None = None
+    rel_kws: dict[str, any] | None = None
 
 
 @dataclass
@@ -186,19 +187,33 @@ def collect_col_info(stat: ast.AnnAssign) -> ColumnAstInfo:
 
     # collecting eventual field keywords
     fields_kws = collect_field_kws(stat)
+    rel_kws = collect_relationship_kws(stat)
 
     return ColumnAstInfo(
         col_name=stat.target.id,
         type_data=type_data,
-        field_kws=fields_kws
+        field_kws=fields_kws,
+        rel_kws=rel_kws
     )
 
+
 def collect_field_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+    return collect_call_kws(stat, 'Field')
+
+
+def collect_relationship_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+    return collect_call_kws(stat, 'Relationship')
+
+
+def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, any] | None:
     if stat.value is None:
         return None
     
     call: ast.Call = stat.value
     if type(call) is not ast.Call:
+        return None
+    
+    if call.func.id != call_name:
         return None
 
     return {
