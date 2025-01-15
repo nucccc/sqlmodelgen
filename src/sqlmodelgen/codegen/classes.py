@@ -30,11 +30,13 @@ def gen_class_name(table_name: str, class_names: set[str]) -> str:
 
     return class_name
     
-def get_model_by_table_name(models: Iterable[Model], table_name: str) -> Model:
+def get_model_by_table_name(models: Iterable[Model], table_name: str) -> Model | None:
     for model in models:
 
         if model.table_name == table_name:
             return model
+        
+    return None
 
 
 @dataclass
@@ -65,7 +67,10 @@ def arrange_relationships(model_irs: list[Model]):
             if col_ir.foreign_key is None:
                 continue
             
-            m2o_model: Model = get_model_by_table_name(model_irs, col_ir.foreign_key.target_table)
+            m2o_model: Model | None = get_model_by_table_name(model_irs, col_ir.foreign_key.target_table)
+
+            if m2o_model is None:
+                continue
 
             rel = Relationship(
 				m2o_model=m2o_model,
