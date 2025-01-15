@@ -32,8 +32,8 @@ def type_data_from_ast_annotation(
         )
     elif node_type is ast.BinOp:
         return type_data_from_binop(ast_node)
-    else:
-        raise TypeError
+    elif node_type is ast.Subscript:
+        return type_data_from_subscript(ast_node)
     
 
 def type_data_from_binop(
@@ -55,7 +55,9 @@ def type_data_from_binop(
             if term.value is None:
                 none_present = True
             else:
-                raise ValueError
+                #import pdb; pdb.set_trace()
+                #raise ValueError
+                type_name = term.value
         elif term_type is ast.Name:
             type_name = term.id
     
@@ -70,11 +72,19 @@ def type_data_from_binop(
     )
 
 
+def type_data_from_subscript(ast_node: ast.Subscript) -> TypeData:
+    return TypeData(
+            type_name=f'{ast_node.value.id}[{ast_node.slice.value}]',
+            optional=False
+        )
+
+
 @dataclass
 class ColumnAstInfo:
     col_name: str
     type_data: TypeData
     field_kws: dict[str, any] | None = None
+    rel_kws: dict[str, any] | None = None
 
 
 @dataclass
@@ -177,19 +187,33 @@ def collect_col_info(stat: ast.AnnAssign) -> ColumnAstInfo:
 
     # collecting eventual field keywords
     fields_kws = collect_field_kws(stat)
+    rel_kws = collect_relationship_kws(stat)
 
     return ColumnAstInfo(
         col_name=stat.target.id,
         type_data=type_data,
-        field_kws=fields_kws
+        field_kws=fields_kws,
+        rel_kws=rel_kws
     )
 
+
 def collect_field_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+    return collect_call_kws(stat, 'Field')
+
+
+def collect_relationship_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+    return collect_call_kws(stat, 'Relationship')
+
+
+def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, any] | None:
     if stat.value is None:
         return None
     
     call: ast.Call = stat.value
     if type(call) is not ast.Call:
+        return None
+    
+    if call.func.id != call_name:
         return None
 
     return {
