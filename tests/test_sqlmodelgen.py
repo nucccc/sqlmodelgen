@@ -1,6 +1,6 @@
-"""import pytest
-
 from src.sqlmodelgen import gen_code_from_sql
+
+from helpers.helpers import collect_code_info
 
 
 def test_sqlmodelgen():
@@ -12,14 +12,16 @@ def test_sqlmodelgen():
     City varchar(255) NOT NULL
 );'''
 
-    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
+    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
-	PersonID: int
-	LastName: str
-	FirstName: str
-	Address: str
-	City: str'''
+    __tablename__ = 'Persons'
+
+    PersonID: int
+    LastName: str
+    FirstName: str
+    Address: str
+    City: str''')
 
 
 def test_sqlmodelgen_nullable():
@@ -31,14 +33,16 @@ def test_sqlmodelgen_nullable():
     City varchar(255)
 );'''
 
-    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
+    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
-	PersonID: int
-	LastName: str
-	FirstName: str
-	Address: str | None
-	City: str | None'''
+    __tablename__ = 'Persons'
+
+    PersonID: int
+    LastName: str
+    FirstName: str
+    Address: str | None
+    City: str | None''')
 
 def test_sqlmodelgen_primary_key():
     schema = '''CREATE TABLE Hero (
@@ -49,10 +53,12 @@ def test_sqlmodelgen_primary_key():
 	PRIMARY KEY (id)
 );'''
 
-    assert gen_code_from_sql(schema) == '''from sqlmodel import SQLModel
+    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel, Field
 
 class Hero(SQLModel, table = True):
-\tid: int | None
+\t__tablename__ = 'Hero'
+
+\tid: int = Field(primary_key=True)
 \tname: str
 \tsecret_name: str
-\tage: int | None'''"""
+\tage: int | None''')

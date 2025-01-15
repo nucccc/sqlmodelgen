@@ -24,15 +24,7 @@ class ImportsNecessary:
             yield 'Relationship'
 
 
-def gen_code(schema_ir: SchemaIR) -> str:
-    code_generator = CodeGen(schema_ir)
-    return code_generator.generate_code()
-
-
-
-def generate_sqlmodels(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
-    # TODO: probably this declaration is unuseful
-    imports_necessary = ImportsNecessary()
+def gen_code(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
 
     model_irs = build_model_irs(schema_ir.table_irs)
 
@@ -158,23 +150,6 @@ def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
         model_irs.append(model_ir)
 
     return model_irs
-
-
-"""def gen_rels_lines(table_ir: TableIR) -> list[str]:
-    rels_lines: list[str] = list()
-
-    for rel in table_ir.relationships:
-        rel.determine_rel_names()
-        rel_name = rel.listing_rel_name
-        class_name = rel.main_table.name
-        foreign_rel_name = rel.foreign_rel_name
-        rels_lines.append(f'{rel_name}: list[\'{class_name}\'] = Relationship(back_populates=\'{foreign_rel_name}\')')
-    for foreign_rel in table_ir.foreign_relationships:
-        foreign_rel.determine_rel_names()
-        rel_name = foreign_rel.
-        foreign_rel_name = foreign_rel.foreign_rel_name
-        foreign_class_name = foreign_rel.foreign_table.name
-        rels_lines.append(f'{foreign_rel_name}: \'{foreign_class_name}\' | None = Relationship(back_populates=\'{rel_name}\')')"""
 
 
 def gen_rel_line_m20(

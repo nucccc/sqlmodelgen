@@ -4,13 +4,13 @@ import ast
 from dataclasses import dataclass
 
 from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR, FKIR
-from sqlmodelgen.codegen.codegen import gen_code, generate_sqlmodels
+from sqlmodelgen.codegen.codegen import gen_code
 
 from helpers.helpers import collect_code_info
 
 
 def test_gen_code():
-    generated_code = generate_sqlmodels(
+    generated_code = gen_code(
         SchemaIR(
             table_irs=[
                 TableIR(
@@ -60,7 +60,7 @@ class A_table(SQLModel, table = True):
 
 def test_gencode_with_foreign_key():
 
-    generated_code = generate_sqlmodels(
+    generated_code = gen_code(
         SchemaIR(
             table_irs=[
                 TableIR(
@@ -128,7 +128,7 @@ class Table2(SQLModel, table = True):
     assert generated_code_info == expected_code_info
 
 
-def test_generate_sqlmodels():
+def test_gen_code():
     schema_ir = SchemaIR(
         table_irs=[
             TableIR(
@@ -153,7 +153,7 @@ def test_generate_sqlmodels():
         ]
     )
 
-    sqlmodel_code = generate_sqlmodels(schema_ir)
+    sqlmodel_code = gen_code(schema_ir)
 
     print(sqlmodel_code)
 
@@ -161,7 +161,7 @@ def test_generate_sqlmodels():
 
 def test_gencode_with_relationships():
 
-    generated_code = generate_sqlmodels(
+    generated_code = gen_code(
         SchemaIR(
             table_irs=[
                 TableIR(
