@@ -1,10 +1,10 @@
 [project]
 name = "sqlmodelgen"
-version = "0.0.3"
+version = "0.0.4"
 description = "Generate SQLModel code from SQL"
 license = {file = "LICENSE"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "sqloxide>=0.1.51",
 ]
@@ -24,3 +24,13 @@ packages = ["src/sqlmodelgen"]
 
 [tool.hatch.build.targets.wheel.sources]
 "src/sqlmodelgen" = "sqlmodelgen"
+
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "License :: OSI Approved :: MIT License"
+  "Intended Audience :: 3 - Alpha",
+  "Topic :: Software Development :: Code Generators",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+]
