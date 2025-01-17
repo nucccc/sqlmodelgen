@@ -7,6 +7,7 @@ from typing import Iterable, Iterator
 
 from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR
 from sqlmodelgen.codegen.classes import Model, Relationship, arrange_relationships
+from sqlmodelgen.codegen.convert_data_type import convert_data_type
 
 
 DEFAULT_TAB_LEVEL = '\t'
@@ -29,8 +30,6 @@ def gen_code(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
     model_irs = build_model_irs(schema_ir.table_irs)
 
     arrange_relationships(model_irs)
-
-    #import pdb; pdb.set_trace()
 
     return _gen_code(model_irs, generate_relationships)
 
@@ -96,6 +95,7 @@ def _gen_cols_lines(
     
     return cols_lines
 
+
 def _gen_rels_lines(
     model: Model,
     imports_necessary: ImportsNecessary
@@ -131,6 +131,7 @@ def _gen_rels_lines(
     
     return rels_lines
 
+
 def _gen_import_code(imports_necessary) -> str:
     import_code = 'from sqlmodel import SQLModel'
 
@@ -139,6 +140,7 @@ def _gen_import_code(imports_necessary) -> str:
         import_code = import_code + ', ' + additional_imports
 
     return import_code
+
 
 def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
     model_irs: list[Model] = list()
@@ -173,7 +175,7 @@ def gen_rel_line_o2m(
 def gen_col_line(col_ir: ColIR) -> tuple[str, bool]:
     used_field = False
     
-    col_line = f'\t{col_ir.name}: {col_ir.data_type}'
+    col_line = f'\t{col_ir.name}: {convert_data_type(col_ir.data_type)}'
     if not col_ir.not_null:
         col_line += ' | None'
 

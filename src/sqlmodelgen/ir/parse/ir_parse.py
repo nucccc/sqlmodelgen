@@ -80,7 +80,7 @@ def collect_cols_data(ctparsed : dict) -> Iterator[ColIR]:
 
 def collect_col_ir(col_parsed: dict[str, any]) -> ColIR:
     name = col_parsed['name']['value']
-    col_type = convert_data_type(collect_data_type(col_parsed['data_type']))
+    col_type = collect_data_type(col_parsed['data_type'])
     col_options = collect_column_options(col_parsed['options'])
     return ColIR(
 		name = name,
@@ -91,21 +91,29 @@ def collect_col_ir(col_parsed: dict[str, any]) -> ColIR:
 	)
 
 
-def convert_data_type(
-	data_type_parsed
+def collect_data_type(
+	data_type_parsed: str | dict[str, any]
 ) -> str:
+	#import pdb; pdb.set_trace()
 	if type(data_type_parsed) is dict:
+		# checking first if the 'Custom' key is present, and in such case
+		custom_value = data_type_parsed.get('Custom')
+		if custom_value is not None:
+			return collect_type_from_custom(custom_value)
+		# otherwise just return the first key
 		type_key = next(key for key in data_type_parsed.keys())
 	else:
 		type_key = data_type_parsed
-	result = 'any'
-	if type_key == 'Int' or type_key == 'Integer' or type_key == 'BIGSERIAL':
-		result = 'int'
-	if type_key == 'Varchar' or type_key == 'Text':
-		result = 'str'
-	if type_key == 'Boolean':
-		result = 'bool'
-	return result
+	return type_key
 
-
-
+def collect_type_from_custom(
+	custom_value: tuple[list[dict[str, any]]]
+) -> str:
+	for elem in custom_value[0]:
+		value = elem.get('value')
+		# in case I find a 'value', then I assume that shall contain the
+		# type string
+		if value is not None:
+			return value
+	# by default we just return 'Custom'
+	return 'Custom'

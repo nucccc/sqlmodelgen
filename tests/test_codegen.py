@@ -18,21 +18,21 @@ def test_gen_code():
                     col_irs=[
                         ColIR(
                             name='id',
-                            data_type='int',
+                            data_type='Int',
                             primary_key=True,
                             not_null=False,
                             unique=True
                         ),
                         ColIR(
                             name='name',
-                            data_type='str',
+                            data_type='Text',
                             primary_key=False,
                             not_null=True,
                             unique=True
                         ),
                         ColIR(
                             name='email',
-                            data_type='str',
+                            data_type='Text',
                             primary_key=False,
                             not_null=False,
                             unique=True
@@ -68,14 +68,14 @@ def test_gencode_with_foreign_key():
                     col_irs=[
                         ColIR(
                             name='id',
-                            data_type='int',
+                            data_type='Int',
                             primary_key=True,
                             not_null=False,
                             unique=True
                         ),
                         ColIR(
                             name='name',
-                            data_type='str',
+                            data_type='Varchar',
                             primary_key=False,
                             not_null=True,
                             unique=True
@@ -87,14 +87,14 @@ def test_gencode_with_foreign_key():
                     col_irs=[
                         ColIR(
                             name='id',
-                            data_type='int',
+                            data_type='Int',
                             primary_key=True,
                             not_null=False,
                             unique=True
                         ),
                         ColIR(
                             name='fid',
-                            data_type='int',
+                            data_type='Int',
                             primary_key=False,
                             not_null=False,
                             unique=False,
@@ -136,14 +136,14 @@ def test_gen_code():
                 col_irs=[
                     ColIR(
                         name='id',
-                        data_type='int',
+                        data_type='Int',
                         primary_key=True,
                         not_null=True,
                         unique=True
                     ),
                     ColIR(
                         name='username',
-                        data_type='str',
+                        data_type='Text',
                         primary_key=False,
                         not_null=True,
                         unique=True
@@ -169,14 +169,14 @@ def test_gencode_with_relationships():
                     col_irs=[
                         ColIR(
                             name='id',
-                            data_type='int',
+                            data_type='BIGSERIAL',
                             primary_key=True,
                             not_null=False,
                             unique=True
                         ),
                         ColIR(
                             name='name',
-                            data_type='str',
+                            data_type='Text',
                             primary_key=False,
                             not_null=True,
                             unique=True
@@ -188,14 +188,14 @@ def test_gencode_with_relationships():
                     col_irs=[
                         ColIR(
                             name='id',
-                            data_type='int',
+                            data_type='BIGSERIAL',
                             primary_key=True,
                             not_null=False,
                             unique=True
                         ),
                         ColIR(
                             name='fid',
-                            data_type='int',
+                            data_type='Integer',
                             primary_key=False,
                             not_null=False,
                             unique=False,

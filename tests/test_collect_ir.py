@@ -18,35 +18,35 @@ def test_collect_ir():
     assert table_ir.col_irs == [
         ColIR(
             name='PersonID',
-            data_type='int',
+            data_type='Int',
             primary_key=False,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='LastName',
-            data_type='str',
+            data_type='Varchar',
             primary_key=False,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='FirstName',
-            data_type='str',
+            data_type='Varchar',
             primary_key=False,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='Address',
-            data_type='str',
+            data_type='Varchar',
             primary_key=False,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='City',
-            data_type='str',
+            data_type='Varchar',
             primary_key=False,
             not_null=True,
             unique=False
@@ -77,28 +77,28 @@ CREATE TABLE leagues(
     assert users_ir.col_irs == [
         ColIR(
             name='id',
-            data_type='int',
+            data_type='BIGSERIAL',
             primary_key=True,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='email',
-            data_type='str',
+            data_type='Text',
             primary_key=False,
             not_null=True,
             unique=True
         ),
         ColIR(
             name='name',
-            data_type='str',
+            data_type='Text',
             primary_key=False,
             not_null=True,
             unique=False
         ),
         ColIR(
             name='psw_hash',
-            data_type='str',
+            data_type='Text',
             primary_key=False,
             not_null=True,
             unique=False
@@ -110,21 +110,21 @@ CREATE TABLE leagues(
     assert leagues_ir.col_irs == [
         ColIR(
             name='id',
-            data_type='int',
+            data_type='BIGSERIAL',
             primary_key=True,
             not_null=False,
             unique=True
         ),
         ColIR(
             name='name',
-            data_type='str',
+            data_type='Text',
             primary_key=False,
             not_null=True,
             unique=True
         ),
         ColIR(
             name='public',
-            data_type='bool',
+            data_type='Boolean',
             primary_key=False,
             not_null=False,
             unique=False
