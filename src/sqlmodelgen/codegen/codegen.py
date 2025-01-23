@@ -5,8 +5,8 @@ this module generates sqlmode code from an intermediate representation
 from dataclasses import dataclass
 from typing import Iterable, Iterator
 
-from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR
-from sqlmodelgen.codegen.classes import Model, Relationship, arrange_relationships
+from sqlmodelgen.ir.ir import SchemaIR, ColIR
+from sqlmodelgen.codegen.classes import Model, arrange_relationships
 from sqlmodelgen.codegen.convert_data_type import convert_data_type
 
 
