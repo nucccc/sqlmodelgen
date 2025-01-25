@@ -1,7 +1,4 @@
-from dataclasses import dataclass, field
-from typing import Iterator
-
-from sqloxide import parse_sql
+from dataclasses import dataclass
 
 
 not_null_option = {'name': None, 'option': 'NotNull'}
