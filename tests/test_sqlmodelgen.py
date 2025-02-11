@@ -123,4 +123,39 @@ class Athletes(SQLModel, table = True):
 \tname: str
 \tnation_id: int | None = Field(foreign_key="nations.id")
 \tnations: Nations | None = Relationship(back_populates='athletess')''')
+
+
+def test_sqlmodelgen_foreign_key_missing_table():
+    schema = '''CREATE TABLE athletes(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    nation_id BIGSERIAL,
+    FOREIGN KEY (nation_id) REFERENCES nations(id)
+);'''
+
+    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel, Field
+
+class Athletes(SQLModel, table = True):
+\t__tablename__ = 'athletes'
+
+\tid: int | None = Field(primary_key=True)
+\tname: str
+\tnation_id: int | None = Field(foreign_key="nations.id")''')
     
+
+def test_sqlmodelgen_foreign_key_and_relationship_missing_table():
+    schema = '''CREATE TABLE athletes(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    nation_id BIGSERIAL,
+    FOREIGN KEY (nation_id) REFERENCES nations(id)
+);'''
+
+    assert collect_code_info(gen_code_from_sql(schema, True)) == collect_code_info('''from sqlmodel import SQLModel, Field
+
+class Athletes(SQLModel, table = True):
+\t__tablename__ = 'athletes'
+
+\tid: int | None = Field(primary_key=True)
+\tname: str
+\tnation_id: int | None = Field(foreign_key="nations.id")''')
