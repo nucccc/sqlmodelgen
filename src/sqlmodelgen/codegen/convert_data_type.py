@@ -7,6 +7,8 @@ this module shall account for the conversion of data types from sql to python
 INT_TYPES = {
 	'int',
 	'integer',
+	'smallserial',
+	'serial',
 	'bigserial',
 	'int',
 	'tinyint',
