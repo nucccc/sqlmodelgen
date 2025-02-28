@@ -33,6 +33,10 @@ class Hero(SQLModel, table = True):
     age: int | None
 ```
 
+## Installation
+
+It is already published on PyPi, just type `pip install sqlmodelgen`
+
 ## Internal functioning
 
 The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly
