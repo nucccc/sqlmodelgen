@@ -1,1 +1,1 @@
-from .sqlmodelgen import gen_code_from_sql
+from .sqlmodelgen import gen_code_from_sql, gen_code_from_postgres

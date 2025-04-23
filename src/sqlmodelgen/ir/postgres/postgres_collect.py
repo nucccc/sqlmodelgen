@@ -1,4 +1,5 @@
 import psycopg
+from dataclasses import dataclass
 from typing import Iterator
 
 from sqlmodelgen.ir.ir import (
@@ -8,7 +9,24 @@ from sqlmodelgen.ir.ir import (
 	FKIR
 )
 
-def collect_postgres_ir(cursor: psycopg.Cursor, schema_name: str = 'public') -> SchemaIR:
+@dataclass
+class ContraintsData:
+    uniques: dict[str, set[str]]
+    primary_keys: dict[str, set[str]]
+
+    def is_unique(self, table_name: str, column_name: str) -> bool:
+        return column_name in self.uniques.get(table_name, set())
+    
+    def is_primary_key(self, table_name: str, column_name: str) -> bool:
+        return column_name in self.primary_keys.get(table_name, set())
+
+
+def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:
+    conn = psycopg.connect(postgres_conn_addr)
+    cursor = conn.cursor()
+
+    constraints = collect_contraints(cursor, schema_name)
+    
     cursor.execute(tables_query(schema_name=schema_name))
     tables_data = cursor.fetchall()
 
@@ -21,11 +39,14 @@ def collect_postgres_ir(cursor: psycopg.Cursor, schema_name: str = 'public') -> 
             col_irs=list(collect_columns_ir(
                 cursor=cursor,
                 table_name=table_name,
-                schema_name=schema_name
+                schema_name=schema_name,
+                constraints=constraints
             ))
         ))
 
     # TODO: potentially collect contraints regarding foreign keys
+
+    conn.close()
 
     return SchemaIR(
         table_irs=table_irs
@@ -39,15 +60,86 @@ def tables_query(schema_name: str) -> str:
 def collect_columns_ir(
     cursor: psycopg.Cursor,
     table_name: str,
-    schema_name: str = 'public'
+    schema_name: str,
+    constraints: ContraintsData
 ) -> Iterator[ColIR]:
     cursor.execute(cols_query(table_name, schema_name))
 
     # NOTE: this code bvasically assumes the cursor not to have a row_factory
     for column_name, column_default, is_nullable, data_type, is_updatable in cursor.fetchall():
         yield ColIR(
-            name=column_name, data_type=data_type, primary_key=False, not_null=False
+            name=column_name,
+            data_type=data_type,
+            primary_key=constraints.is_primary_key(table_name, column_name),
+            not_null=(is_nullable == 'NO'),
+            unique=constraints.is_unique(table_name, column_name)
         )
+
 
 def cols_query(table_name: str, schema_name: str) -> str:
     return f'SELECT column_name, column_default, is_nullable, data_type, is_updatable FROM information_schema.columns WHERE table_schema = \'{schema_name}\' AND table_name = \'{table_name}\''
+
+
+def collect_contraints(cursor: psycopg.Cursor, schema_name: str) -> ContraintsData:
+    return ContraintsData(
+        uniques=collect_uniques(cursor, schema_name),
+        primary_keys=collect_primary_keys(cursor, schema_name)
+    )
+
+
+def collect_uniques(cursor: psycopg.Cursor, schema_name: str) -> dict[str, set[str]]:
+    cursor.execute(f'''SELECT
+    tc.table_name, 
+    tc.constraint_name,
+    kcu.column_name
+FROM 
+    information_schema.table_constraints tc
+JOIN 
+    information_schema.key_column_usage kcu
+    ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+WHERE 
+    tc.constraint_type = 'UNIQUE' AND tc.table_schema = '{schema_name}'
+ORDER BY 
+    tc.table_schema, 
+    tc.table_name''')
+
+    rows = cursor.fetchall()
+
+    result: dict[str, set[str]] = dict()
+
+    for table_name, _, column_name in rows:
+        if table_name not in result.keys():
+            result[table_name] = set()
+        result[table_name].add(column_name)
+
+    return result
+
+
+def collect_primary_keys(cursor: psycopg.Cursor, schema_name: str) -> dict[str, set[str]]:
+    cursor.execute(f'''SELECT
+    tc.table_name, 
+    tc.constraint_name,
+    kcu.column_name
+FROM 
+    information_schema.table_constraints tc
+JOIN 
+    information_schema.key_column_usage kcu
+    ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+WHERE 
+    tc.constraint_type = 'PRIMARY KEY' AND tc.table_schema = '{schema_name}'
+ORDER BY 
+    tc.table_schema, 
+    tc.table_name''')
+
+    rows = cursor.fetchall()
+
+    result: dict[str, set[str]] = dict()
+
+    for table_name, _, column_name in rows:
+        if table_name not in result.keys():
+            result[table_name] = set()
+        result[table_name].add(column_name)
+
+    return result
