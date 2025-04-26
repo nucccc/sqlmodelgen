@@ -1,6 +1,6 @@
 [project]
 name = "sqlmodelgen"
-version = "0.0.5"
+version = "0.0.8"
 description = "Generate SQLModel code from SQL"
 license = {file = "LICENSE"}
 readme = "README.md"
@@ -27,7 +27,8 @@ postgres = [
 [tool.uv]
 dev-dependencies = [
     "pytest>=8.3.4",
-    "coverage>=7.6.9"
+    "coverage>=7.6.9",
+    "docker>=7.1.0",
 ]
 
 [build-system]
