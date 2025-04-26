@@ -1,4 +1,8 @@
-import psycopg
+try:
+    import psycopg
+except ImportError:
+    pass
+
 from dataclasses import dataclass
 from typing import Iterator
 
@@ -22,6 +26,13 @@ class ContraintsData:
 
 
 def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:
+    try:
+        import psycopg
+    except ImportError:
+        raise ImportError(
+            'psycopg library was not found. To install psycopg extras type \'pip install sqlmodelgen[postgres]\''
+        )
+    
     conn = psycopg.connect(postgres_conn_addr)
     cursor = conn.cursor()
 
