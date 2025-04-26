@@ -33,7 +33,8 @@ STR_TYPES = {
 	'text',
 	'tinytext',
 	'mediumtext',
-	'longtext'
+	'longtext',
+	'character varying',
 }
 
 BOOL_TYPES = {
