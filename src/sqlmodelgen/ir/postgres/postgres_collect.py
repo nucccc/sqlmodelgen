@@ -1,7 +1,7 @@
-try:
-    import psycopg
-except ImportError:
-    pass
+# such try catch statements serves the puspose of allowing typing with postgres
+# to be spred across the module
+
+import psycopg
 
 from dataclasses import dataclass
 from typing import Iterator
@@ -25,14 +25,8 @@ class ContraintsData:
         return column_name in self.primary_keys.get(table_name, set())
 
 
-def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:
-    try:
-        import psycopg
-    except ImportError:
-        raise ImportError(
-            'psycopg library was not found. To install psycopg extras type \'pip install sqlmodelgen[postgres]\''
-        )
-    
+def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:    
+
     conn = psycopg.connect(postgres_conn_addr)
     cursor = conn.cursor()
 
