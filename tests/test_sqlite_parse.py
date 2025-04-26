@@ -5,10 +5,7 @@ from sqlmodelgen.ir.ir import SchemaIR, TableIR, ColIR
 
 
 def test_collect_sqlite_ir():
-    conn = sqlite3.connect('tests/files/hero.db')
-    cursor = conn.cursor()
-
-    schema_ir = sqlite_parse.collect_sqlite_ir(cursor)
+    schema_ir = sqlite_parse.collect_sqlite_ir('tests/files/hero.db')
 
     assert schema_ir == SchemaIR(
         table_irs=[
