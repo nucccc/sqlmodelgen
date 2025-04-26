@@ -7,7 +7,10 @@ from sqlmodelgen.ir.ir import (
 	FKIR
 )
 
-def collect_sqlite_ir(cursor: sqlite3.Cursor) -> SchemaIR:
+def collect_sqlite_ir(sqlite_address: str) -> SchemaIR:
+    conn = sqlite3.connect(sqlite_address)
+    cursor = conn.cursor()
+
     table_irs: list[TableIR] = list()
 
     tablenames = query_table_names(cursor)
