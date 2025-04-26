@@ -2,6 +2,8 @@
 
 `sqlmodelgen` is a library to convert `CREATE TABLE` statements from SQL to classes inheriting `SQLModel` from the famous [sqlmodel library](https://sqlmodel.tiangolo.com/).
 
+At the moment there is support (with limites capabilities) for direct interconnection with SQLite and Postgres
+
 ## Example
 
 ```python
@@ -37,6 +39,8 @@ class Hero(SQLModel, table = True):
 
 It is already published on PyPi, just type `pip install sqlmodelgen`
 
+ Code generation from postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`
+
 ## Internal functioning
 
 The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly
@@ -44,4 +48,3 @@ The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse S
 ## Possible improvements
 
 - Support for more SQL data types
-- Possibility to acquire in input actual database connections (like Postgres) or files (SQLite) and generate sqlmodel code accordingly
