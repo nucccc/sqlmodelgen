@@ -37,22 +37,14 @@ class ImportsNecessary:
 
 
 def gen_code(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
-    model_irs = build_model_irs(schema_ir.table_irs)
-
-    # TODO: verify that this if is correct
-    if generate_relationships:
-        arrange_relationships(model_irs)
-
-        for model_ir in model_irs:
-            for rel in chain(model_ir.m2o_relationships, model_ir.o2m_relationships):
-                rel.determine_rel_names()
+    model_irs = build_model_irs(schema_ir.table_irs, generate_relationships)
 
     models_ast = gen_ast(model_irs)
 
     return ast.unparse(models_ast)
 
 
-def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
+def build_model_irs(table_irs: Iterable[Model], generate_relationships: bool) -> list[Model]:
     model_irs: list[Model] = list()
     class_names: set[str] = set()
 
@@ -60,5 +52,12 @@ def build_model_irs(table_irs: Iterable[Model]) -> list[Model]:
         model_ir = Model(table_ir, class_names)
         class_names.add(model_ir.class_name)
         model_irs.append(model_ir)
+
+    if generate_relationships:
+        arrange_relationships(model_irs)
+
+        for model_ir in model_irs:
+            for rel in chain(model_ir.m2o_relationships, model_ir.o2m_relationships):
+                rel.determine_rel_names()
 
     return model_irs
