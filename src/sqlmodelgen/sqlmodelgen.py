@@ -1,11 +1,11 @@
-from .codegen.codegen import gen_code
+from .codegen.codegen import gen_code, gen_code_ast
 from .ir.parse.ir_parse import ir_parse
 from .ir.sqlite.sqlite_parse import collect_sqlite_ir
 from .utils.dependency_checker import check_postgres_deps
 
 
 def gen_code_from_sql(sql_code: str, generate_relationships: bool = False) -> str:
-    return gen_code(ir_parse(sql_code), generate_relationships)
+    return gen_code_ast(ir_parse(sql_code), generate_relationships)
 
 if check_postgres_deps():
     from .ir.postgres.postgres_collect import collect_postgres_ir

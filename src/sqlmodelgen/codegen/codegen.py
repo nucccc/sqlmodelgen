@@ -2,15 +2,23 @@
 this module generates sqlmode code from an intermediate representation
 '''
 
+import ast
 from dataclasses import dataclass
+from itertools import chain
 from typing import Iterable, Iterator
 
 from sqlmodelgen.ir.ir import SchemaIR, ColIR
 from sqlmodelgen.codegen.classes import Model, arrange_relationships
 from sqlmodelgen.codegen.convert_data_type import convert_data_type
+from sqlmodelgen.codegen.to_ast import gen_ast
 
 
 DEFAULT_TAB_LEVEL = '\t'
+
+'''def _iter_data_types(models: list[Model]) -> Iterator[str]:
+    for model in models:
+        pass
+        #for model.'''
 
 
 @dataclass
@@ -24,18 +32,40 @@ class ImportsNecessary:
         if self.relationship:
             yield 'Relationship'
 
+    def absorb_data_types(models: list[Model]):
+        pass
 
-def gen_code(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
 
+def gen_code_ast(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
     model_irs = build_model_irs(schema_ir.table_irs)
 
-    arrange_relationships(model_irs)
+    # TODO: verify that this if is correct
+    if generate_relationships:
+        arrange_relationships(model_irs)
 
-    return _gen_code(model_irs, generate_relationships)
+        for model_ir in model_irs:
+            for rel in chain(model_ir.m2o_relationships, model_ir.o2m_relationships):
+                rel.determine_rel_names()
+
+    models_ast = gen_ast(model_irs)
+
+    return ast.unparse(models_ast)
+
+
+def gen_code(schema_ir: SchemaIR, generate_relationships: bool = False) -> str:
+    return gen_code_ast(schema_ir, generate_relationships)
+
+    #model_irs = build_model_irs(schema_ir.table_irs)
+
+    #arrange_relationships(model_irs)
+
+    #return _gen_code(model_irs, generate_relationships)
 
 
 def _gen_code(models: list[Model], generate_relationships: bool) -> str:
     imports_necessary = ImportsNecessary()
+
+    imports_necessary
 
     models_code = _gen_models_code(models, generate_relationships, imports_necessary)
     import_code = _gen_import_code(imports_necessary)
@@ -55,6 +85,7 @@ def _gen_models_code(
         models_codes.append(model_code)
 
     return '\n\n'.join(models_codes)
+
 
 def _gen_model_code(
     model: Model,
@@ -81,6 +112,7 @@ def _gen_model_lines(
     rels_lines = _gen_rels_lines(model, imports_necessary) if generate_relationships else []
 
     return cols_lines + rels_lines
+
 
 def _gen_cols_lines(
     model: Model,
@@ -174,8 +206,10 @@ def gen_rel_line_o2m(
 
 def gen_col_line(col_ir: ColIR) -> tuple[str, bool]:
     used_field = False
+
+    data_type_converted = convert_data_type(col_ir.data_type)
     
-    col_line = f'\t{col_ir.name}: {convert_data_type(col_ir.data_type)}'
+    col_line = f'\t{col_ir.name}: {data_type_converted}'
     if not col_ir.not_null:
         col_line += ' | None'
 
