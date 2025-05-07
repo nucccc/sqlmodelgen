@@ -20,7 +20,7 @@ TYPE_IMPORTS = {
         module='uuid',
         names=[
             ast.alias('UUID'),
-            ast.alias('uuid')
+            ast.alias('uuid4')
         ]
     )
 }

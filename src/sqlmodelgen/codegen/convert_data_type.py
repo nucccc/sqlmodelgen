@@ -49,6 +49,14 @@ BYTES_TYPES = {
 	'longblob'
 }
 
+UUID_TYPES = {
+	'uuid'
+}
+
+DATETIME_TYPES = {
+	'timestamp with time zone'
+}
+
 def convert_data_type(
 	data_type: str
 ) -> str:
@@ -64,4 +72,8 @@ def convert_data_type(
 		result = 'bool'
 	elif data_type in BYTES_TYPES:
 		result = 'bytes'
+	elif data_type in UUID_TYPES:
+		result = 'UUID'
+	elif data_type in DATETIME_TYPES:
+		result = 'datetime'
 	return result

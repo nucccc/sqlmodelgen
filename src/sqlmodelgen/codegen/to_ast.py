@@ -77,13 +77,13 @@ def gen_col_expr(col_ir: ColIR) -> ast.AnnAssign:
     return ast.AnnAssign(
         target=ast.Name(col_ir.name),
         annotation=annotation,
-        value=gen_col_field(col_ir),
+        value=gen_col_field(col_ir, data_type_converted),
         simple=1
     )
 
 
-def gen_col_field(col_ir: ColIR) -> ast.Call | None:
-    kwords = gen_field_kwords(col_ir)
+def gen_col_field(col_ir: ColIR, data_type_converted: str) -> ast.Call | None:
+    kwords = gen_field_kwords(col_ir, data_type_converted)
 
     if len(kwords) == 0:
         return None
@@ -95,7 +95,7 @@ def gen_col_field(col_ir: ColIR) -> ast.Call | None:
     )
 
 
-def gen_field_kwords(col_ir: ColIR) -> list[ast.keyword]:
+def gen_field_kwords(col_ir: ColIR, data_type_converted: str) -> list[ast.keyword]:
     '''
     gen_fields_kwords generates a list of keywords which shall go
     into the Field assignment
@@ -119,7 +119,7 @@ def gen_field_kwords(col_ir: ColIR) -> list[ast.keyword]:
         #result.append(f'foreign_key="{col_ir.foreign_key.target_table}.{col_ir.foreign_key.target_column}"')
 
     # the specific case in which a default factory of uuid is needed
-    if col_ir.data_type == 'UUID':
+    if data_type_converted == 'UUID':
         result.append(ast.keyword(
             arg='default_factory',
             value=ast.Name('uuid4')
@@ -130,24 +130,22 @@ def gen_field_kwords(col_ir: ColIR) -> list[ast.keyword]:
 
 def gen_rel_exprs(model: Model) -> Iterator[ast.AnnAssign]:
     for rel in model.m2o_relationships:
-        if True:
-            line = gen_rel_m2o(
-                m2o_rel_name=rel.m2o_rel_name,
-                o2m_class_name=rel.o2m_model.class_name,
-                o2m_rel_name=rel.o2m_rel_name
-            )
+        line = gen_rel_m2o(
+            m2o_rel_name=rel.m2o_rel_name,
+            o2m_class_name=rel.o2m_model.class_name,
+            o2m_rel_name=rel.o2m_rel_name
+        )
 
-            yield line
+        yield line
 
     for rel in model.o2m_relationships:
-        if True:
-            line = gen_rel_o2m(
-                o2m_rel_name=rel.o2m_rel_name,
-                m2o_class_name=rel.m2o_model.class_name,
-                m2o_rel_name=rel.m2o_rel_name
-            )
-            
-            yield line
+        line = gen_rel_o2m(
+            o2m_rel_name=rel.o2m_rel_name,
+            m2o_class_name=rel.m2o_model.class_name,
+            m2o_rel_name=rel.m2o_rel_name
+        )
+        
+        yield line
 
     
 def gen_rel_m2o(
@@ -204,39 +202,3 @@ def optionalize_annotation(annotation: ast.Name | ast.Constant) -> ast.BinOp:
         op=ast.BitOr(),
         right=ast.Constant(value=None)
     )
-
-
-'''def _gen_rels_lines(
-    model: Model,
-    imports_necessary: ImportsNecessary
-) -> list[str]:
-    rels_lines: list[str] = list()
-
-    # TODO: verify this!!!
-    for rel in model.m2o_relationships:
-        rel.determine_rel_names()
-
-        line = gen_rel_line_m20(
-            m2o_rel_name=rel.m2o_rel_name,
-            o2m_class_name=rel.o2m_model.class_name,
-            o2m_rel_name=rel.o2m_rel_name
-        )
-
-        rels_lines.append(line)
-
-        imports_necessary.relationship = True
-
-    for rel in model.o2m_relationships:
-        rel.determine_rel_names()
-        
-        line = gen_rel_line_o2m(
-            o2m_rel_name=rel.o2m_rel_name,
-            m2o_class_name=rel.m2o_model.class_name,
-            m2o_rel_name=rel.m2o_rel_name
-        )
-        
-        rels_lines.append(line)
-
-        imports_necessary.relationship = True
-    
-    return rels_lines'''
