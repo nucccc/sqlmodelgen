@@ -3,4 +3,4 @@ def check_postgres_deps() -> bool:
         import psycopg
     except ImportError:
         return False
-    return False
+    return True
