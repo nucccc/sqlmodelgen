@@ -17,12 +17,21 @@ from sqlmodelgen.ir.ir import (
 class ContraintsData:
     uniques: dict[str, set[str]]
     primary_keys: dict[str, set[str]]
+    foreingn_keys: dict[str, dict[str, FKIR]]
 
     def is_unique(self, table_name: str, column_name: str) -> bool:
         return column_name in self.uniques.get(table_name, set())
     
     def is_primary_key(self, table_name: str, column_name: str) -> bool:
         return column_name in self.primary_keys.get(table_name, set())
+    
+    def get_foreign_key(self, table_name: str, column_name: str) -> FKIR | None:
+        table_fks = self.foreingn_keys.get(table_name)
+
+        if table_fks is None:
+            return None
+        
+        return table_fks.get(column_name)
 
 
 def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:    
@@ -77,7 +86,8 @@ def collect_columns_ir(
             data_type=data_type,
             primary_key=constraints.is_primary_key(table_name, column_name),
             not_null=(is_nullable == 'NO'),
-            unique=constraints.is_unique(table_name, column_name)
+            unique=constraints.is_unique(table_name, column_name),
+            foreign_key=constraints.get_foreign_key(table_name, column_name)
         )
 
 
@@ -86,9 +96,11 @@ def cols_query(table_name: str, schema_name: str) -> str:
 
 
 def collect_contraints(cursor: psycopg.Cursor, schema_name: str) -> ContraintsData:
+    # TODO: possibly all of that stuff could be made async at a point
     return ContraintsData(
         uniques=collect_uniques(cursor, schema_name),
-        primary_keys=collect_primary_keys(cursor, schema_name)
+        primary_keys=collect_primary_keys(cursor, schema_name),
+        foreingn_keys=collect_foreign_keys(cursor, schema_name)
     )
 
 
@@ -146,5 +158,61 @@ ORDER BY
         if table_name not in result.keys():
             result[table_name] = set()
         result[table_name].add(column_name)
+
+    return result
+
+
+def collect_foreign_keys(
+    cursor: psycopg.Cursor,
+    schema_name: str
+) -> dict[str, dict[str, FKIR]]:
+    # TODO: extend this to external tables from other schemas (it appears
+    # in postgres one can have foreign key constraints between tables of
+    # different schemas)
+    cursor.execute(f'''SELECT
+    tc.table_schema,
+    tc.table_name,
+    tc.constraint_name,
+    kcu.column_name,
+    ccu.table_schema AS foreign_table_schema,
+    ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name
+FROM
+    information_schema.table_constraints tc
+JOIN
+    information_schema.key_column_usage kcu
+    ON tc.constraint_name = kcu.constraint_name
+    AND tc.table_schema = kcu.table_schema
+JOIN
+    information_schema.constraint_column_usage ccu
+    ON ccu.constraint_name = tc.constraint_name
+    AND ccu.table_schema = tc.table_schema
+WHERE
+    tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = '{schema_name}'
+ORDER BY
+    tc.table_name''')
+
+    rows = cursor.fetchall()
+
+    result: dict[str, dict[str, FKIR]] = dict()
+
+    for (
+        table_schema,
+        table_name,
+        constraint_name,
+        column_name,
+        foreign_table_schema,
+        foreign_table_name,
+        foreign_column_name
+    ) in rows:
+        table_fks = result.get(table_name)
+        if table_fks is None:
+            table_fks = dict()
+            result[table_name] = table_fks
+
+        table_fks[column_name] = FKIR(
+            target_table=foreign_table_name,
+            target_column=foreign_column_name
+        )
 
     return result

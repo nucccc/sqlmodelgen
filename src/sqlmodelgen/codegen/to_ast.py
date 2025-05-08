@@ -118,6 +118,8 @@ def gen_field_kwords(col_ir: ColIR, data_type_converted: str) -> list[ast.keywor
         ))
         #result.append(f'foreign_key="{col_ir.foreign_key.target_table}.{col_ir.foreign_key.target_column}"')
 
+    # TODO: do I need the default factory when this is a foreign key?
+
     # the specific case in which a default factory of uuid is needed
     if data_type_converted == 'UUID':
         result.append(ast.keyword(
