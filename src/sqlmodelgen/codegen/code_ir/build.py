@@ -8,6 +8,16 @@ def gen_class_name(table_name: str, class_names: set[str]) -> str:
 
     return class_name
 
+
+def backpop_keyws(backpop: str) -> list[ast.keyword]:
+    return [
+        ast.keyword(
+            arg='back_populates',
+            value=ast.Constant(value=backpop)
+        )
+    ]
+
+
 def optionalize_annotation(annotation: ast.Name | ast.Constant) -> ast.BinOp:
     return ast.BinOp(
         left=annotation,
