@@ -114,7 +114,7 @@ class Nations(SQLModel, table = True):
 
 \tid: int | None = Field(primary_key=True)
 \tname: str
-\tathletess: list['Athletes'] = Relationship(back_populates='nations')
+\tathletess: list['Athletes'] = Relationship(back_populates='nation')
                                                                              
 class Athletes(SQLModel, table = True):
 \t__tablename__ = 'athletes'
@@ -122,7 +122,7 @@ class Athletes(SQLModel, table = True):
 \tid: int | None = Field(primary_key=True)
 \tname: str
 \tnation_id: int | None = Field(foreign_key="nations.id")
-\tnations: Nations | None = Relationship(back_populates='athletess')''')
+\tnation: Nations | None = Relationship(back_populates='athletess')''')
 
 
 def test_sqlmodelgen_foreign_key_missing_table():
