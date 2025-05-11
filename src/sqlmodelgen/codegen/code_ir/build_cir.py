@@ -1,15 +1,4 @@
-import ast
-
-from typing import Iterator, Iterable
-
-from sqlmodelgen.codegen.convert_data_type import convert_data_type
-from sqlmodelgen.codegen.code_ir.code_ir import (
-    AnnotationType,
-    AttributeIR,
-    AttrCallIR,
-    AttrCallName,
-    ModelIR
-)
+from sqlmodelgen.codegen.code_ir.code_ir import ModelIR
 from sqlmodelgen.codegen.code_ir.build_rels import add_relationships_attrs
 from sqlmodelgen.codegen.code_ir.build_col_attrs import attribute_from_col
 from sqlmodelgen.ir.ir import SchemaIR, TableIR
