@@ -11,7 +11,7 @@ from typing import Iterable, Iterator
 from sqlmodelgen.ir.ir import ColIR
 from sqlmodelgen.codegen.classes import Model
 from sqlmodelgen.codegen.convert_data_type import convert_data_type
-from sqlmodelgen.codegen.to_ast_imports import gen_imports
+#from sqlmodelgen.codegen.to_ast_imports import gen_imports
 
 
 def gen_ast(models: Iterable[Model]) -> ast.Module:

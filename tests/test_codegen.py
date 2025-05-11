@@ -222,13 +222,13 @@ class Table1(SQLModel, table = True):
 	__tablename__ = 'table1' 
 	id: int | None = Field(primary_key=True)
 	name: str
-	table2s: list['Table2'] = Relationship(back_populates='table1')
+	table2s: list['Table2'] = Relationship(back_populates='f')
 
 class Table2(SQLModel, table = True):
 	__tablename__ = 'table2' 
 	id: int | None = Field(primary_key=True)
 	fid: int | None = Field(foreign_key="table1.id")
-	table1: 'Table1' | None = Relationship(back_populates='table2s')'''
+	f: 'Table1' | None = Relationship(back_populates='table2s')'''
     )
 
     assert generated_code_info == expected_code_info
