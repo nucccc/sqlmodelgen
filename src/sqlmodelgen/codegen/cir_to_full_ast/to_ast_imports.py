@@ -56,6 +56,11 @@ def gen_sqlmodel_import(call_names: set[str]) -> ast.ImportFrom:
             ast.alias('Relationship')
         )
 
+    if 'UniqueConstraint' in call_names:
+        sqlmodel_import.names.append(
+            ast.alias('UniqueConstraint')
+        )
+
     return sqlmodel_import
 
 
@@ -68,8 +73,15 @@ def _iter_data_type_names(cdef: ast.ClassDef) -> Iterator[str]:
         )
 
 def _iter_call_names(cdef: ast.ClassDef) -> Iterator[str]:
+    # considering the annotated assignments
     for ann_as in filter(lambda x: isinstance(x, ast.AnnAssign), cdef.body):
         value = ann_as.value
         if isinstance(value, ast.Call):
             if isinstance(value.func, ast.Name):
                 yield value.func.id
+
+    # consindering the table args
+    for assign in filter(lambda x: isinstance(x, ast.Assign), cdef.body):
+        for call in filter(lambda x: isinstance(x, ast.Call), ast.walk(assign.value)):
+            if isinstance(call.func, ast.Name):
+                yield call.func.id
