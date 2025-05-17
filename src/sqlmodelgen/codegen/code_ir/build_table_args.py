@@ -9,5 +9,5 @@ def build_unique_constraints(table_ir: TableIR) -> Iterator[UniqueTableArgIR]:
     yield from (
         UniqueTableArgIR([col_ir.name])
         for col_ir in table_ir.col_irs
-        if col_ir.unique
+        if col_ir.unique and not col_ir.primary_key
     )
