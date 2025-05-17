@@ -112,10 +112,11 @@ def test_gencode_with_foreign_key():
     generated_code_info = collect_code_info(generated_code)
 
     expected_code_info = collect_code_info(
-        '''from sqlmodel import SQLModel, Field
+        '''from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class Table1(SQLModel, table = True):
     __tablename__ = 'table1'
+    __table_args__ = [UniqueConstraint('name')]
     id: int | None = Field(primary_key=True)
     name: str
     
@@ -216,13 +217,14 @@ def test_gencode_with_relationships():
     generated_code_info = collect_code_info(generated_code)
 
     expected_code_info = collect_code_info(
-        '''from sqlmodel import SQLModel, Field, Relationship
+        '''from sqlmodel import SQLModel, Field, Relationship, UniqueConstraint
 
 class Table1(SQLModel, table = True):
-	__tablename__ = 'table1' 
-	id: int | None = Field(primary_key=True)
-	name: str
-	table2s: list['Table2'] = Relationship(back_populates='f')
+    __tablename__ = 'table1'
+    __table_args__ = [UniqueConstraint('name')]
+    id: int | None = Field(primary_key=True)
+    name: str
+    table2s: list['Table2'] = Relationship(back_populates='f')
 
 class Table2(SQLModel, table = True):
 	__tablename__ = 'table2' 
