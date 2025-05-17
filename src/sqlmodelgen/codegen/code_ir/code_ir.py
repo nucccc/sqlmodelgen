@@ -2,7 +2,7 @@ import ast
 
 from dataclasses import dataclass, field
 from enum import StrEnum
-from typing import Iterator
+from typing import Iterator, Protocol
 
 
 AnnotationType = ast.Name | ast.BitOr | ast.Subscript
@@ -26,6 +26,26 @@ class AttributeIR:
     call: AttrCallIR | None
 
 
+class TableArg(Protocol):
+
+    def to_expr(self) -> ast.expr:
+        pass
+
+
+class UniqueTableArgIR():
+
+    def __init__(self, col_names: list[str]):
+        self._col_names = col_names
+
+    def to_expr(self) -> ast.Call:
+        return ast.Call(
+            func=ast.Name('UniqueConstraint'),
+            args=[ast.Constant(col_name) for col_name in self._col_names],
+            keywords=[]
+        )
+
+
+
 @dataclass
 class ModelIR:
     class_name: str
@@ -33,6 +53,7 @@ class ModelIR:
     attrs: list[AttributeIR]
     o2m_rel_attrs: list[AttributeIR] = field(default_factory=list)
     m2o_rel_attrs: list[AttributeIR] = field(default_factory=list)
+    table_args: list[TableArg] = field(default_factory=list)
 
     
     def iter_attr_lists(self) -> Iterator[list[AttributeIR]]:
