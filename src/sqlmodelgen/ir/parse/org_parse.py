@@ -26,6 +26,7 @@ class TableConstraints:
     foreign_key: list[FKConstraint] | None = None
 
 
+"""
 def collect_data_type(data_type_parsed : str | dict) -> str:
     '''
     at times the data type could be either a string or a dictionary,
@@ -50,6 +51,7 @@ def collect_data_type(data_type_parsed : str | dict) -> str:
 
     # by default return any
     return 'any'
+"""
 
 
 def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOptions:

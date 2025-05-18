@@ -15,7 +15,6 @@ from sqlmodelgen.ir.ir import (
 )
 from sqlmodelgen.ir.parse.org_parse import (
 	collect_column_options,
-	collect_data_type,
     collect_table_contraints
 )
 

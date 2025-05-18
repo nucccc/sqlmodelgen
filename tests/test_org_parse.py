@@ -1,26 +1,9 @@
-import pytest
-
 from sqlmodelgen.ir.parse.org_parse import (
-    collect_data_type,
     collect_column_options,
     collect_table_contraints,
     ColumnOptions,
     TableConstraints
 )
-
-
-def test_get_data_type():
-    assert collect_data_type(
-        'Text'
-    ) == 'Text'
-
-    assert collect_data_type(
-        {'Int': None}
-    ) == 'Int'
-
-    assert collect_data_type(
-        {'Custom': ([{'value': 'BIGSERIAL', 'quote_style': None}], [])}
-    ) == 'BIGSERIAL'
 
 
 def test_collect_column_option():
