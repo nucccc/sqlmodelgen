@@ -3,6 +3,11 @@ from src.sqlmodelgen import gen_code_from_sql
 from helpers.helpers import collect_code_info
 
 
+# TODO: document the tests
+# TODO: i need to test unique
+# TODO: testing unique when declared as separated constraint
+
+
 def test_sqlmodelgen():
     schema = '''CREATE TABLE Persons (
     PersonID int NOT NULL,
