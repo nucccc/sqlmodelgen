@@ -3,12 +3,15 @@ from src.sqlmodelgen import gen_code_from_sql
 from helpers.helpers import collect_code_info
 
 
-# TODO: document the tests
 # TODO: i need to test unique
 # TODO: testing unique when declared as separated constraint
 
 
-def test_sqlmodelgen():
+def test_simple_table():
+    '''
+    testing the code generation for a single table
+    '''
+
     schema = '''CREATE TABLE Persons (
     PersonID int NOT NULL,
     LastName varchar(255) NOT NULL,
@@ -29,7 +32,11 @@ class Persons(SQLModel, table = True):
     City: str''')
 
 
-def test_sqlmodelgen_nullable():
+def test_nullable():
+    '''
+    testing the possibility of optional types
+    '''
+
     schema = '''CREATE TABLE Persons (
     PersonID int NOT NULL,
     LastName varchar(255) NOT NULL,
@@ -50,7 +57,12 @@ class Persons(SQLModel, table = True):
     City: str | None''')
 
 
-def test_sqlmodelgen_primary_key():
+def test_primary_key_separate_constraint():
+    '''
+    testing the case in which the primary key is declared as
+    a separate constraint
+    '''
+
     schema = '''CREATE TABLE Hero (
 	id INTEGER NOT NULL, 
 	name VARCHAR NOT NULL, 
@@ -70,7 +82,11 @@ class Hero(SQLModel, table = True):
 \tage: int | None''')
 
 
-def test_sqlmodelgen_foreign_key():
+def test_foreign_key():
+    '''
+    testing the case of a foreign key, without relationships
+    '''
+
     schema = '''CREATE TABLE nations(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL
@@ -99,7 +115,12 @@ class Athletes(SQLModel, table = True):
 \tnation_id: int | None = Field(foreign_key="nations.id")''')
 
 
-def test_sqlmodelgen_foreign_key_and_relationship():
+def test_foreign_key_and_relationship():
+    '''
+    testing the case of a foreign key, with the generation
+    of relationships
+    '''
+
     schema = '''CREATE TABLE nations(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL
@@ -130,7 +151,11 @@ class Athletes(SQLModel, table = True):
 \tnation: Nations | None = Relationship(back_populates='athletess')''')
 
 
-def test_sqlmodelgen_foreign_key_missing_table():
+def test_foreign_key_missing_table():
+    '''
+    testing when the foreign table does not exist
+    '''
+
     schema = '''CREATE TABLE athletes(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
@@ -148,7 +173,7 @@ class Athletes(SQLModel, table = True):
 \tnation_id: int | None = Field(foreign_key="nations.id")''')
     
 
-def test_sqlmodelgen_foreign_key_and_relationship_missing_table():
+def test_foreign_key_and_relationship_missing_table():    
     schema = '''CREATE TABLE athletes(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
