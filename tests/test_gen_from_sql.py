@@ -82,6 +82,27 @@ class Hero(SQLModel, table = True):
 \tage: int | None''')
 
 
+def test_unique_single_column():
+
+    sql = '''CREATE TABLE Hero (
+	id INTEGER PRIMARY KEY NOT NULL, 
+	name VARCHAR NOT NULL, 
+	secret_name VARCHAR NOT NULL UNIQUE, 
+	age INTEGER
+);'''
+
+    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from sqlmodel import SQLModel, Field, UniqueConstraint
+
+class Hero(SQLModel, table = True):
+\t__tablename__ = 'Hero'
+\t__table_args__ = [UniqueConstraint('secret_name')]
+
+\tid: int = Field(primary_key=True)
+\tname: str
+\tsecret_name: str
+\tage: int | None''')
+
+
 def test_foreign_key():
     '''
     testing the case of a foreign key, without relationships
