@@ -35,20 +35,22 @@ def test_type_data_from_ast_annassign():
 
 def test_collect_code_info():
 
-    code_info = collect_code_info('''from sqlmodel import SQLModel
+    code_info = collect_code_info('''from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class a_table(SQLModel, table = True):
-	__tablename__ = 'a_table' 
-	id: int | None = Field(primary_key=True)
-	name: str
-	email: str | None''')
+    __tablename__ = 'a_table'
+    __table_args__ = [UniqueConstraint('name')]
+    id: int | None = Field(primary_key=True)
+    name: str
+    email: str | None''')
 
     assert code_info == ModuleAstInfo(
-        sqlmodel_imports={'SQLModel'},
+        sqlmodel_imports={'SQLModel', 'Field', 'UniqueConstraint'},
         classes_info={
             'a_table': ClassAstInfo(
                 class_name='a_table',
                 table_name='a_table',
+                uniques={('name', )},
                 cols_info={
                     'id':ColumnAstInfo(
                         col_name='id',
