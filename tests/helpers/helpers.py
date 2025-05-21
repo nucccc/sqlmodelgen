@@ -91,6 +91,7 @@ class ColumnAstInfo:
 class ClassAstInfo:
     class_name: str
     table_name: str | None
+    uniques: set[tuple[str]]
     cols_info: dict[str, ColumnAstInfo]
 
 
@@ -162,15 +163,28 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
 
     class_name = class_def.name
     table_name: str | None = None
+    uniques: list[tuple[str]] = list()
     cols_info: dict[str, ColumnAstInfo] = dict()
     
     for stat in class_def.body:
         # trying to collect the table name from the assignment
         if type(stat) is ast.Assign:
-            candidate_table_name = collect_table_name(stat)
-            if candidate_table_name is None:
-                continue 
-            table_name = candidate_table_name
+
+            if len(stat.targets) != 1:
+                continue
+
+            if not isinstance(stat.targets[0], ast.Name):
+                continue
+
+            var_name = stat.targets[0].id
+
+            if var_name == '__tablename__':
+                # TODO: make collect_table_name more efficient
+                # less activity repetitions
+                table_name = collect_table_name(stat)
+            elif var_name == '__table_args__':
+                uniques = collect_uniques(stat.value)
+
         elif type(stat) is ast.AnnAssign:
             col_info = collect_col_info(stat)
             cols_info[col_info.col_name] = col_info
@@ -178,6 +192,7 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
     return ClassAstInfo(
         class_name=class_name,
         table_name=table_name,
+        uniques=uniques,
         cols_info=cols_info
     )
 
@@ -233,6 +248,17 @@ def collect_table_name(stat: ast.Assign) -> str | None:
     if type(stat.value) is not ast.Constant:
         return None
     return stat.value.value
+
+
+def collect_uniques(table_args: ast.expr) -> set[tuple[str]]:
+    uniques: set[tuple[str]] = set()
+
+    if isinstance(table_args, ast.List):
+        for elt in table_args.elts:
+            if isinstance(elt, ast.Call) and isinstance(elt.func, ast.Name) and elt.func.id == 'UniqueConstraint':
+                uniques.add(tuple(arg.value for arg in elt.args if isinstance(arg, ast.Constant)))
+
+    return uniques
 
 
 def is_valid_sqlmodel_class(class_def: ast.ClassDef) -> bool:
