@@ -101,15 +101,6 @@ class ModuleAstInfo:
     classes_info: dict[str, ClassAstInfo]
 
 
-# def verify_module(
-#     generated_code: str,
-#     expected_code_info: ModuleAstInfo
-# ) -> bool:
-#     code_info = collect_code_info(generated_code)
-# 
-#     assert code_info == expected_code_info
-
-
 def collect_code_info(generated_code: str) -> ModuleAstInfo:
     ast_mod = ast.parse(generated_code)
 
@@ -144,19 +135,6 @@ def collect_imports_from(ast_mod: ast.Module) -> dict[str, set[str]]:
         imports_from[stat.module] = {alias.name for alias in stat.names}
 
     return imports_from
-
-
-def collect_sqlmodel_imports(stat: ast.ImportFrom) -> set[str]:
-    # in case the module is not sqlmodel just return
-    if stat.module != 'sqlmodel':
-        return {}
-    
-    sqlmodel_imports: set[str] = {
-        alias.name
-        for alias in stat.names
-    }
-
-    return sqlmodel_imports
 
 
 def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:

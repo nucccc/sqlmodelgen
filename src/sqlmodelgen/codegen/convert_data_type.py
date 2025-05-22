@@ -54,7 +54,8 @@ UUID_TYPES = {
 }
 
 DATETIME_TYPES = {
-	'timestamp with time zone'
+	'timestamp',
+	'timestamp with time zone',
 }
 
 def convert_data_type(
