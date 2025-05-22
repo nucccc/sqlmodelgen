@@ -97,17 +97,17 @@ class ClassAstInfo:
 
 @dataclass
 class ModuleAstInfo:
-    sqlmodel_imports: set[str]
+    imports_from: dict[str, set[str]]
     classes_info: dict[str, ClassAstInfo]
 
 
-def verify_module(
-    generated_code: str,
-    expected_code_info: ModuleAstInfo
-) -> bool:
-    code_info = collect_code_info(generated_code)
-
-    assert code_info == expected_code_info
+# def verify_module(
+#     generated_code: str,
+#     expected_code_info: ModuleAstInfo
+# ) -> bool:
+#     code_info = collect_code_info(generated_code)
+# 
+#     assert code_info == expected_code_info
 
 
 def collect_code_info(generated_code: str) -> ModuleAstInfo:
@@ -117,7 +117,6 @@ def collect_code_info(generated_code: str) -> ModuleAstInfo:
 
 
 def mod_info_from_ast_mod(ast_mod: ast.Module) -> ModuleAstInfo:
-    sqlmodel_imports: set[str] = set()
     classes_info: dict[str, ClassAstInfo] = dict()
 
     for stat in ast_mod.body:
@@ -128,16 +127,23 @@ def mod_info_from_ast_mod(ast_mod: ast.Module) -> ModuleAstInfo:
 
             if class_info is not None:
                 classes_info[class_key] = class_info
-        
-        # collecting the imports
-        if type(stat) is ast.ImportFrom:
-            sqlmodel_imports = sqlmodel_imports.union(collect_sqlmodel_imports(stat))
-
 
     return ModuleAstInfo(
-        sqlmodel_imports=sqlmodel_imports,
+        imports_from=collect_imports_from(ast_mod),
         classes_info=classes_info
     )
+
+
+def collect_imports_from(ast_mod: ast.Module) -> dict[str, set[str]]:
+    imports_from: dict[str, set[str]] = dict()
+    
+    for stat in ast_mod.body:
+        if not isinstance(stat, ast.ImportFrom):
+            continue
+
+        imports_from[stat.module] = {alias.name for alias in stat.names}
+
+    return imports_from
 
 
 def collect_sqlmodel_imports(stat: ast.ImportFrom) -> set[str]:
