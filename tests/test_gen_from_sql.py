@@ -103,6 +103,23 @@ class Hero(SQLModel, table = True):
 \tage: int | None''')
 
 
+def test_datetime():
+
+    sql = '''CREATE TABLE ts (
+	id INTEGER PRIMARY KEY NOT NULL, 
+	dt TIMESTAMP WITH TIME ZONE
+);'''
+
+    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from datetime import datetime
+from sqlmodel import SQLModel, Field
+
+class Ts(SQLModel, table = True):
+\t__tablename__ = 'ts'
+
+\tid: int = Field(primary_key=True)
+\tdt: datetime | None''')
+
+
 def test_foreign_key():
     '''
     testing the case of a foreign key, without relationships
