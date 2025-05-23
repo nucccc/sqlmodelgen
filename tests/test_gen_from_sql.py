@@ -227,3 +227,38 @@ class Athletes(SQLModel, table = True):
 \tid: int | None = Field(primary_key=True)
 \tname: str
 \tnation_id: int | None = Field(foreign_key="nations.id")''')
+
+
+def test_foreign_key_and_relationship_same_name():
+    '''
+    testing the case of a foreign key, with the name
+    '''
+
+    schema = '''CREATE TABLE table1(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE table2(
+    id BIGSERIAL PRIMARY KEY,
+    f TEXT NOT NULL,
+    f_id BIGSERIAL,
+    FOREIGN KEY (f_id) REFERENCES table1(id)
+);'''
+
+    assert collect_code_info(gen_code_from_sql(schema, True)) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship
+
+class Table1(SQLModel, table = True):
+\t__tablename__ = 'table1'
+
+\tid: int | None = Field(primary_key=True)
+\tname: str
+\ttable2s: list['Table2'] = Relationship(back_populates='f_rel')
+                                                                             
+class Table2(SQLModel, table = True):
+\t__tablename__ = 'table2'
+
+\tid: int | None = Field(primary_key=True)
+\tf: str
+\tf_id: int | None = Field(foreign_key="table1.id")
+\tf_rel: Table1 | None = Relationship(back_populates='table2s')''')
