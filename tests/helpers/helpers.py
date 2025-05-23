@@ -216,9 +216,16 @@ def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, any] | No
         return None
 
     return {
-        kw.arg: kw.value.value
+        kw.arg: collect_kw_value(kw.value)
         for kw in call.keywords
     }
+
+
+def collect_kw_value(kw_value: ast.expr) -> str:
+    if isinstance(kw_value, ast.Constant):
+        return kw_value.value
+    if isinstance(kw_value, ast.Name):
+        return kw_value.id
 
 
 def collect_table_name(stat: ast.Assign) -> str | None:
