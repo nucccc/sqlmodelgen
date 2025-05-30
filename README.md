@@ -4,7 +4,21 @@
 
 At the moment there is support (with limites capabilities) for direct interconnection with SQLite and Postgres
 
-## Example
+## Installation
+
+Available on PyPi, just run `pip install sqlmodelgen`
+
+Code generation from postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`
+
+## Usage
+
+You can use `sqlmodelgen` to generate code from the following sources:
+
+* direct `CREATE TABLE` sql statements
+* sqlite file path
+* postgres connection string
+
+### Generating from CREATE TABLE
 
 ```python
 from sqlmodelgen import gen_code_from_sql
@@ -35,16 +49,72 @@ class Hero(SQLModel, table = True):
     age: int | None
 ```
 
-## Installation
+### Generating from SQLite
 
-It is already published on PyPi, just type `pip install sqlmodelgen`
+```python
+from sqlmodelgen import gen_code_from_sqlite
 
- Code generation from postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`
+code = gen_code_from_sqlite('/home/my_user/my_database.sqlite')
+```
+
+### Generating from Postgres
+
+To generate code from Postgres the separate `postgres` extension is required, it can be installed with `pip install sqlmodelgen[postgres]`.
+
+```python
+from sqlmodelgen import gen_code_from_postgres
+
+code = gen_code_from_postgres('postgres://USER:PASSWORD@HOST:PORT/DBNAME')
+```
+
+### Relationships
+
+`sqlmodelgen` allows to build relationships by passing the argument `generate_relationships=True` to the functions:
+
+* `gen_code_from_sql`
+* `gen_code_from_sqlite`
+* `gen_code_from_postgres`
+
+In such case `sqlmodelgen` is going to generate relationships between classes based on the foreign keys retrieved.
+The following example
+
+```python
+schema = '''CREATE TABLE nations(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE athletes(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    nation_id BIGSERIAL,
+    FOREIGN KEY (nation_id) REFERENCES nations(id)
+);'''
+
+sqlmodel_code = gen_code_from_sql(schema, generate_relationships=True)
+```
+
+will generate:
+
+```python
+from sqlmodel import SQLModel, Field, Relationship
+
+class Nations(SQLModel, table = True):
+    __tablename__ = 'nations'
+
+    id: int | None = Field(primary_key=True)
+    name: str
+    athletess: list['Athletes'] = Relationship(back_populates='nation')
+                                                                             
+class Athletes(SQLModel, table = True):
+    __tablename__ = 'athletes'
+
+    id: int | None = Field(primary_key=True)
+    name: str
+    nation_id: int | None = Field(foreign_key="nations.id")
+    nation: Nations | None = Relationship(back_populates='athletess')
+```
 
 ## Internal functioning
 
 The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly
-
-## Possible improvements
-
-- Support for more SQL data types
