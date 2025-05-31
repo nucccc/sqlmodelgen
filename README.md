@@ -1,8 +1,12 @@
 # sqlmodelgen
 
-`sqlmodelgen` is a library to convert `CREATE TABLE` statements from SQL to classes inheriting `SQLModel` from the famous [sqlmodel library](https://sqlmodel.tiangolo.com/).
+`sqlmodelgen` is a library to generate models for the **sqlmodel** library ([repo](https://github.com/fastapi/sqlmodel), [official docs](https://sqlmodel.tiangolo.com/)).
 
-At the moment there is support (with limites capabilities) for direct interconnection with SQLite and Postgres
+It accepts in input the following sources:
+
+* direct `CREATE TABLE` sql statements
+* sqlite file path
+* postgres connection string
 
 ## Installation
 
@@ -11,12 +15,6 @@ Available on PyPi, just run `pip install sqlmodelgen`
 Code generation from postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`
 
 ## Usage
-
-You can use `sqlmodelgen` to generate code from the following sources:
-
-* direct `CREATE TABLE` sql statements
-* sqlite file path
-* postgres connection string
 
 ### Generating from CREATE TABLE
 
@@ -59,7 +57,7 @@ code = gen_code_from_sqlite('/home/my_user/my_database.sqlite')
 
 ### Generating from Postgres
 
-To generate code from Postgres the separate `postgres` extension is required, it can be installed with `pip install sqlmodelgen[postgres]`.
+The separate `postgres` extension is required, it can be installed with `pip install sqlmodelgen[postgres]`.
 
 ```python
 from sqlmodelgen import gen_code_from_postgres
