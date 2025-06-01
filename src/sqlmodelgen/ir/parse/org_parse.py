@@ -94,7 +94,7 @@ def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> Ta
         fk_constraint = constraint.get('ForeignKey')
         if fk_constraint:
             column_name = fk_constraint['columns'][0]['value']
-            foreign_table = fk_constraint['foreign_table'][0]['value']
+            foreign_table = collect_foreign_table_name(fk_constraint['foreign_table'][0])
             foreign_column = fk_constraint['referred_columns'][0]['value']
             if tab_constraints.foreign_key is None:
                 tab_constraints.foreign_key = list()
@@ -107,3 +107,12 @@ def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> Ta
             )
 
     return tab_constraints
+
+
+def collect_foreign_table_name(
+    foreign_table_data: dict[str, any]
+) -> str:
+    identifier = foreign_table_data.get('Identifier')
+    if identifier is None:
+        return foreign_table_data['value']
+    return identifier['value']
