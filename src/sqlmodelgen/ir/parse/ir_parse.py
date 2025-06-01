@@ -112,6 +112,9 @@ def collect_type_from_custom(
 	custom_value: tuple[list[dict[str, any]]]
 ) -> str:
 	for elem in custom_value[0]:
+		identifier = elem.get('Identifier')
+		if identifier is not None:
+			elem = identifier
 		value = elem.get('value')
 		# in case I find a 'value', then I assume that shall contain the
 		# type string
