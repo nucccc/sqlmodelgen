@@ -1,6 +1,7 @@
 from sqlmodelgen.ir.parse.org_parse import (
     collect_column_options,
     collect_table_contraints,
+    collect_foreign_table_name,
     ColumnOptions,
     TableConstraints
 )
@@ -79,3 +80,15 @@ def test_collect_table_contraints():
     ) == TableConstraints(
         primary_key=['id']
     )
+
+
+def test_table_name_from_ctparsed():
+    # testing for ct_parsed formats, either before and after sqloxide
+    # version 0.1.56 introducing Identifier
+    assert collect_foreign_table_name(
+        {'value':'hero'}
+    ) == 'hero'
+
+    assert collect_foreign_table_name(
+        {'Identifier':{'value':'hero'}}
+    ) == 'hero'
