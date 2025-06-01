@@ -82,7 +82,7 @@ def test_collect_table_contraints():
     )
 
 
-def test_table_name_from_ctparsed():
+def test_foreign_table_name():
     # testing for ct_parsed formats, either before and after sqloxide
     # version 0.1.56 introducing Identifier
     assert collect_foreign_table_name(
