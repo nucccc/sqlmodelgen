@@ -68,7 +68,10 @@ def collect_table_ir(ctparsed: dict) -> TableIR:
 
 
 def table_name_from_ctparsed(ctparsed: dict) -> str:
-	return ctparsed['name'][0]['value']
+	identifier = ctparsed['name'][0].get('Identifier')
+	if identifier is None:
+		return ctparsed['name'][0]['value']
+	return identifier['value']
 
 
 def collect_cols_data(ctparsed : dict) -> Iterator[ColIR]:
