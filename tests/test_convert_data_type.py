@@ -2,7 +2,7 @@ from sqlmodelgen.codegen.convert_data_type import convert_data_type
 
 
 def test_convert_data_type():
-    assert convert_data_type('UNKNOWN_TYPE') == 'any'
+    assert convert_data_type('UNKNOWN_TYPE') == 'Any'
     
     assert convert_data_type('BLOB') == 'bytes'
     assert convert_data_type('blob') == 'bytes'
