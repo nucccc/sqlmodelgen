@@ -8,3 +8,5 @@ dist/
 htmlcov/
 
 src/sqlmodelgen.egg-info
+
+.zed

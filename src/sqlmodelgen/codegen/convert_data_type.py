@@ -62,7 +62,7 @@ def convert_data_type(
 	data_type: str
 ) -> str:
 	data_type = data_type.lower()
-	result = 'any'
+	result = 'Any'
 	if data_type in INT_TYPES:
 		result = 'int'
 	elif data_type in FLOAT_TYPES:

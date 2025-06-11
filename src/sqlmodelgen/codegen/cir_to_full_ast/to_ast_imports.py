@@ -22,7 +22,8 @@ TYPE_IMPORTS = {
             ast.alias('UUID'),
             ast.alias('uuid4')
         ]
-    )
+    ),
+    "Any": ast.ImportFrom(module="typing", names=[ast.alias("Any")]),
 }
 
 def gen_imports(cdefs: Iterable[ast.ClassDef]) -> Iterator[AST_IMPORT_TYPE]:
