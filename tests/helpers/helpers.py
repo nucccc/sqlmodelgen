@@ -1,5 +1,6 @@
 import ast
 from dataclasses import dataclass
+from typing import Any
 
 
 # then I need a portion of code to actually handle the type of a
@@ -196,15 +197,15 @@ def collect_col_info(stat: ast.AnnAssign) -> ColumnAstInfo:
     )
 
 
-def collect_field_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+def collect_field_kws(stat: ast.AnnAssign) -> dict[str, Any] | None:
     return collect_call_kws(stat, 'Field')
 
 
-def collect_relationship_kws(stat: ast.AnnAssign) -> dict[str, any] | None:
+def collect_relationship_kws(stat: ast.AnnAssign) -> dict[str, Any] | None:
     return collect_call_kws(stat, 'Relationship')
 
 
-def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, any] | None:
+def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, Any] | None:
     if stat.value is None:
         return None
     
@@ -221,11 +222,12 @@ def collect_call_kws(stat: ast.AnnAssign, call_name: str) -> dict[str, any] | No
     }
 
 
-def collect_kw_value(kw_value: ast.expr) -> str:
+def collect_kw_value(kw_value: ast.expr) -> Any:
     if isinstance(kw_value, ast.Constant):
         return kw_value.value
     if isinstance(kw_value, ast.Name):
         return kw_value.id
+    # TODO: handle the case of dictionaries
 
 
 def collect_table_name(stat: ast.Assign) -> str | None:

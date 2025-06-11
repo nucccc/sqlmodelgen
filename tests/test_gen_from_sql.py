@@ -136,6 +136,46 @@ class Accounts(SQLModel, table = True):
 
 \tid: int = Field(primary_key=True)
 \taccount: Any | None''')
+    
+
+def test_custom_transforms():
+    # testing for custom table and column names transformations
+
+    sql = '''CREATE TABLE accounts (
+	id INTEGER PRIMARY KEY NOT NULL, 
+	account INTEGER
+);'''
+
+    def bmbmnk_transform(input: str) -> str:
+        result = ''
+        for i, c in enumerate(input):
+            if i % 2 == 1:
+                result += c.capitalize()
+            else:
+                result += c
+        return result
+    
+    def bmbmnk_transform_rev(input: str) -> str:
+        result = ''
+        for i, c in enumerate(input):
+            if i % 2 == 0:
+                result += c.capitalize()
+            else:
+                result += c
+        return result
+
+
+    assert collect_code_info(gen_code_from_sql(
+        sql,
+        table_name_transform=bmbmnk_transform_rev,
+        column_name_transform=bmbmnk_transform
+    )) == collect_code_info('''from sqlmodel import SQLModel, Field
+
+class AcCoUnTs(SQLModel, table = True):
+\t__tablename__ = 'accounts'
+
+\tiD: int = Field(primary_key=True, sa_column_kwargs={'name':'id'})
+\taCcOuNt: int | None = Field(sa_column_kwargs={'name':'account'})''')
 
 
 def test_foreign_key():
