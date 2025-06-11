@@ -118,6 +118,24 @@ class Ts(SQLModel, table = True):
 
 \tid: int = Field(primary_key=True)
 \tdt: datetime | None''')
+    
+
+def test_any_import():
+    # testing that from typing import Any happens in the face of unknown types
+
+    sql = '''CREATE TABLE accounts (
+	id INTEGER PRIMARY KEY NOT NULL, 
+	account MONEY
+);'''
+
+    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from sqlmodel import SQLModel, Field
+from typing import Any
+
+class Accounts(SQLModel, table = True):
+\t__tablename__ = 'accounts'
+
+\tid: int = Field(primary_key=True)
+\taccount: Any | None''')
 
 
 def test_foreign_key():
