@@ -1,4 +1,5 @@
 import ast
+from typing import Callable
 
 from sqlmodelgen.codegen.convert_data_type import convert_data_type
 from sqlmodelgen.codegen.code_ir.code_ir import (
@@ -10,11 +11,13 @@ from sqlmodelgen.codegen.code_ir.code_ir import (
 from sqlmodelgen.codegen.code_ir.build_common import optionalize_annotation
 from sqlmodelgen.ir.ir import ColIR
 
-def attribute_from_col(col_ir: ColIR) -> AttributeIR:
+def attribute_from_col(col_ir: ColIR, column_name_transform: Callable[[str], str] | None = None) -> AttributeIR:
+    attr_name = column_name_transform(col_ir.name) if column_name_transform else col_ir.name
+
     return AttributeIR(
-        name=col_ir.name,
+        name=attr_name,
         annotation=build_col_annotation(col_ir),
-        call=build_field_call(col_ir)
+        call=build_field_call(col_ir, map_name=column_name_transform is not None),
     )
 
 
@@ -29,24 +32,24 @@ def build_col_annotation(col_ir: ColIR) -> AnnotationType:
     return annotation
 
 
-def build_field_call(col_ir: ColIR) -> AttrCallIR | None:
+def build_field_call(col_ir: ColIR, map_name=False) -> AttrCallIR | None:
     # TODO: REFACTOR AND FIX THIS
-    field_kwords = gen_field_kwords(col_ir)
+    field_kwords = gen_field_kwords(col_ir, map_name)
 
     if len(field_kwords) == 0:
         return None
-    
+
     return AttrCallIR(
         name=AttrCallName.Field,
         kwargs=field_kwords
     )
 
-def gen_field_kwords(col_ir: ColIR) -> list[ast.keyword]:
+def gen_field_kwords(col_ir: ColIR, map_name=False) -> list[ast.keyword]:
     '''
     gen_fields_kwords generates a list of keywords which shall go
     into the Field assignment
     '''
-    result: list[str] = list()
+    result: list[ast.keyword] = []
 
     if col_ir.primary_key:
         result.append(ast.keyword(
@@ -72,5 +75,15 @@ def gen_field_kwords(col_ir: ColIR) -> list[ast.keyword]:
             arg='default_factory',
             value=ast.Name('uuid4')
         ))
+
+    if map_name:
+        result.append(ast.keyword(
+            arg='sa_column_kwargs',
+            value=ast.Dict(
+                keys=[ast.Constant('name')],
+                values=[ast.Constant(col_ir.name)]
+            )
+        ))
+        #result.append(f'sa_column_kwargs={{"name": "{db_name}"}}')
 
     return result
