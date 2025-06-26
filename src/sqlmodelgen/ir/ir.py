@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Any
 
 
 not_null_option = {'name': None, 'option': 'NotNull'}
@@ -20,7 +21,7 @@ class ColIR:
 	primary_key: bool
 	not_null: bool
 	unique: bool
-	default: any = None
+	default: Any = None
 	foreign_key: FKIR | None = None
 
 

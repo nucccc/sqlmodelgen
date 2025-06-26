@@ -3,7 +3,7 @@ this module shall account for obtaining the actual intermediate representation
 '''
 
 
-from typing import Iterator
+from typing import Any, Iterator
 
 from sqloxide import parse_sql
 
@@ -80,7 +80,7 @@ def collect_cols_data(ctparsed : dict) -> Iterator[ColIR]:
 		yield collect_col_ir(col_parsed)
 
 
-def collect_col_ir(col_parsed: dict[str, any]) -> ColIR:
+def collect_col_ir(col_parsed: dict[str, Any]) -> ColIR:
     name = col_parsed['name']['value']
     col_type = collect_data_type(col_parsed['data_type'])
     col_options = collect_column_options(col_parsed['options'])
@@ -94,7 +94,7 @@ def collect_col_ir(col_parsed: dict[str, any]) -> ColIR:
 
 
 def collect_data_type(
-	data_type_parsed: str | dict[str, any]
+	data_type_parsed: str | dict[str, Any]
 ) -> str:
 	#import pdb; pdb.set_trace()
 	if type(data_type_parsed) is dict:
@@ -109,7 +109,7 @@ def collect_data_type(
 	return type_key
 
 def collect_type_from_custom(
-	custom_value: tuple[list[dict[str, any]]]
+	custom_value: tuple[list[dict[str, Any]]]
 ) -> str:
 	for elem in custom_value[0]:
 		identifier = elem.get('Identifier')

@@ -84,8 +84,8 @@ def type_data_from_subscript(ast_node: ast.Subscript) -> TypeData:
 class ColumnAstInfo:
     col_name: str
     type_data: TypeData
-    field_kws: dict[str, any] | None = None
-    rel_kws: dict[str, any] | None = None
+    field_kws: dict[str, Any] | None = None
+    rel_kws: dict[str, Any] | None = None
 
 
 @dataclass

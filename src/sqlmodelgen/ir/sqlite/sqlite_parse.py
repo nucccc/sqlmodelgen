@@ -1,4 +1,5 @@
 import sqlite3
+from typing import Any
 
 from sqlmodelgen.ir.ir import (
 	ColIR,
@@ -79,7 +80,7 @@ ORDER BY
 
 def table_ir_from_info(
     tablename: str,
-    table_info: list[tuple[int, str, str, int, any, int]],
+    table_info: list[tuple[int, str, str, int, Any, int]],
     fk_constraints: dict[str, dict[str, FKIR]]
 ) -> TableIR:
     col_irs: list[ColIR] = list()

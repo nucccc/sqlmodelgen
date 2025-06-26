@@ -4,6 +4,7 @@ into some data which is easier to digest
 '''
 
 from dataclasses import dataclass
+from typing import Any
 
 
 @dataclass
@@ -26,7 +27,7 @@ class TableConstraints:
     foreign_key: list[FKConstraint] | None = None
 
 
-def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOptions:
+def collect_column_options(options_parsed: list[dict[str, Any]]) -> ColumnOptions:
     '''
     collect_column_options takes the list at the "option" keyword for
     every column, and derives options out of these
@@ -48,7 +49,7 @@ def collect_column_options(options_parsed: list[dict[str, any]]) -> ColumnOption
     return col_opts
 
 
-def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> TableConstraints:
+def collect_table_contraints(tab_constraints_parsed: list[dict[str, Any]]) -> TableConstraints:
     tab_constraints = TableConstraints(
         primary_key=None
     )
@@ -82,7 +83,7 @@ def collect_table_contraints(tab_constraints_parsed: list[dict[str, any]]) -> Ta
 
 
 def collect_foreign_table_name(
-    foreign_table_data: dict[str, any]
+    foreign_table_data: dict[str, Any]
 ) -> str:
     identifier = foreign_table_data.get('Identifier')
     if identifier is None:
