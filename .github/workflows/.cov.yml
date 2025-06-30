@@ -20,6 +20,9 @@ jobs:
         with:
           python-version: 3
 
+      - name: installing uv
+        run: pip install uv
+
       - name: syncing uv
         run: uv sync --all-extras
 
