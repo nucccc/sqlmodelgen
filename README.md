@@ -31,9 +31,9 @@ CREATE TABLE Hero (
 	age INTEGER, 
 	PRIMARY KEY (id)
 );
-
-print(gen_code_from_sql(sql_code))
 '''
+print(gen_code_from_sql(sql_code))
+
 ```
 
 generates:
