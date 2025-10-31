@@ -16,6 +16,12 @@ TYPE_IMPORTS = {
             ast.alias('datetime')
         ]
     ),
+    'date': ast.ImportFrom(
+        module='datetime',
+        names=[
+            ast.alias('date')
+        ]
+    ),
     'UUID': ast.ImportFrom(
         module='uuid',
         names=[

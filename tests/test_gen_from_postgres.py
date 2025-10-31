@@ -24,7 +24,8 @@ def test_gen_code():
     email TEXT NOT NULL UNIQUE,
     name TEXT NOT NULL UNIQUE,
     psw_hash TEXT NOT NULL,
-    registered_at TIMESTAMP WITH TIME ZONE NOT NULL
+    registered_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    date_of_birth DATE
 );
 
 CREATE TABLE leagues(
@@ -74,6 +75,7 @@ CREATE TABLE athletes(
         assert collect_code_info(code_generated) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship, UniqueConstraint
 from uuid import UUID, uuid4
 from datetime import datetime
+from datetime import date
 
                                                                       
 class Users(SQLModel, table=True):
@@ -84,6 +86,7 @@ class Users(SQLModel, table=True):
     name: str
     psw_hash: str
     registered_at: datetime
+    date_of_birth: date | None
     participationss: list['Participations'] = Relationship(back_populates='user')
     invitationss: list['Invitations'] = Relationship(back_populates='invitee')
     invitationss0: list['Invitations'] = Relationship(back_populates='inviter')
