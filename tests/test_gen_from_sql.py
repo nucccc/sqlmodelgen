@@ -1,4 +1,4 @@
-from src.sqlmodelgen import gen_code_from_sql
+from sqlmodelgen import gen_code_from_sql
 
 from helpers.helpers import collect_code_info
 
