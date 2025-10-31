@@ -46,7 +46,8 @@ BYTES_TYPES = {
 	'blob',
 	'tinyblob',
 	'mediumblob',
-	'longblob'
+	'longblob',
+	'bytea'
 }
 
 UUID_TYPES = {

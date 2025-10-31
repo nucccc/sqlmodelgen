@@ -6,7 +6,8 @@ def test_convert_data_type():
     
     assert convert_data_type('BLOB') == 'bytes'
     assert convert_data_type('blob') == 'bytes'
-    
+    assert convert_data_type('bytea') == 'bytes'
+
     assert convert_data_type('INTEGER') == 'int'
     assert convert_data_type('SERIAL') == 'int'
     assert convert_data_type('BIGSERIAL') == 'int'
