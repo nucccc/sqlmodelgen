@@ -59,6 +59,10 @@ DATETIME_TYPES = {
 	'timestamp with time zone',
 }
 
+DATE_TYPES = {
+	'date'
+}
+
 def convert_data_type(
 	data_type: str
 ) -> str:
@@ -78,4 +82,6 @@ def convert_data_type(
 		result = 'UUID'
 	elif data_type in DATETIME_TYPES:
 		result = 'datetime'
+	elif data_type in DATE_TYPES:
+		result = 'date'
 	return result

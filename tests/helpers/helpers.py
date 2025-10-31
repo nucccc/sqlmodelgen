@@ -1,4 +1,5 @@
 import ast
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Any
 
@@ -127,13 +128,13 @@ def mod_info_from_ast_mod(ast_mod: ast.Module) -> ModuleAstInfo:
 
 
 def collect_imports_from(ast_mod: ast.Module) -> dict[str, set[str]]:
-    imports_from: dict[str, set[str]] = dict()
+    imports_from: dict[str, set[str]] = defaultdict(set)
     
     for stat in ast_mod.body:
         if not isinstance(stat, ast.ImportFrom):
             continue
 
-        imports_from[stat.module] = {alias.name for alias in stat.names}
+        imports_from[stat.module].update({alias.name for alias in stat.names})
 
     return imports_from
 

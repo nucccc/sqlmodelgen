@@ -120,6 +120,25 @@ class Ts(SQLModel, table = True):
 \tdt: datetime | None''')
     
 
+def test_date():
+    sql = '''CREATE TABLE bdays (
+	id INTEGER PRIMARY KEY NOT NULL,
+    name VARCHAR NOT NULL,
+	date_of_birth DATE NOT NULL
+);'''
+
+    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from datetime import date
+from sqlmodel import SQLModel, Field
+
+class Bdays(SQLModel, table = True):
+\t__tablename__ = 'bdays'
+
+\tid: int = Field(primary_key=True)
+\tname: str
+\tdate_of_birth: date
+''')
+
+
 def test_any_import():
     # testing that from typing import Any happens in the face of unknown types
 

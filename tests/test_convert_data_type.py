@@ -26,3 +26,4 @@ def test_convert_data_type():
     assert convert_data_type('UUID') == 'UUID'
 
     assert convert_data_type('TIMESTAMP WITH TIME ZONE') == 'datetime'
+    assert convert_data_type('DATE') == 'date'

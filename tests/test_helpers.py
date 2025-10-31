@@ -36,6 +36,7 @@ def test_type_data_from_ast_annassign():
 def test_collect_code_info():
 
     code_info = collect_code_info('''from datetime import datetime
+from datetime import date
 from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class a_table(SQLModel, table = True):
@@ -47,7 +48,7 @@ class a_table(SQLModel, table = True):
 
     assert code_info == ModuleAstInfo(
         imports_from={
-            'datetime':{'datetime'},
+            'datetime':{'datetime', 'date'},
             'sqlmodel':{'SQLModel', 'Field', 'UniqueConstraint'}
         },
         classes_info={
