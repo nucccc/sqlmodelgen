@@ -1,6 +1,6 @@
 [project]
 name = "sqlmodelgen"
-version = "0.0.13"
+version = "0.0.14"
 description = "Generate SQLModel code from SQL"
 license = {file = "LICENSE"}
 readme = "README.md"

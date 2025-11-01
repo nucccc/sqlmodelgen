@@ -1,6 +1,6 @@
 # sqlmodelgen
 
-![Coverage badge](https://raw.githubusercontent.com/nucccc/sqlmodelgen/python-coverage-comment-action-data/badge.svg)
+![Coverage badge](https://raw.githubusercontent.com/nucccc/sqlmodelgen/python-coverage-comment-action-data/badge.svg) ![PyPI version](https://img.shields.io/pypi/v/sqlmodelgen)
 
 `sqlmodelgen` is a library to generate models for the **sqlmodel** library ([repo](https://github.com/fastapi/sqlmodel), [official docs](https://sqlmodel.tiangolo.com/)).
 
