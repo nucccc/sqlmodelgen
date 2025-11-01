@@ -12,17 +12,17 @@
 | src/sqlmodelgen/codegen/code\_ir/build\_common.py               |        3 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_rels.py                 |       55 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_table\_args.py          |        5 |        0 |    100% |           |
-| src/sqlmodelgen/codegen/code\_ir/code\_ir.py                    |       49 |        1 |     98% |        32 |
+| src/sqlmodelgen/codegen/code\_ir/code\_ir.py                    |       41 |        1 |     98% |        32 |
 | src/sqlmodelgen/codegen/codegen.py                              |        9 |        0 |    100% |           |
-| src/sqlmodelgen/codegen/convert\_data\_type.py                  |       25 |        0 |    100% |           |
-| src/sqlmodelgen/ir/ir.py                                        |       34 |        6 |     82% | 37, 49-53 |
+| src/sqlmodelgen/codegen/convert\_data\_type.py                  |       28 |        0 |    100% |           |
+| src/sqlmodelgen/ir/ir.py                                        |       24 |        6 |     75% | 37, 49-53 |
 | src/sqlmodelgen/ir/parse/ir\_parse.py                           |       61 |        2 |     97% |   60, 124 |
-| src/sqlmodelgen/ir/parse/org\_parse.py                          |       47 |        0 |    100% |           |
-| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       69 |        0 |    100% |           |
+| src/sqlmodelgen/ir/parse/org\_parse.py                          |       40 |        0 |    100% |           |
+| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       66 |        0 |    100% |           |
 | src/sqlmodelgen/ir/sqlite/sqlite\_parse.py                      |       43 |        0 |    100% |           |
 | src/sqlmodelgen/sqlmodelgen.py                                  |       13 |        0 |    100% |           |
 | src/sqlmodelgen/utils/dependency\_checker.py                    |        6 |        2 |     67% |       4-5 |
-|                                                       **TOTAL** |  **540** |   **11** | **98%** |           |
+|                                                       **TOTAL** |  **515** |   **11** | **98%** |           |
 
 
 ## Setup coverage badge
