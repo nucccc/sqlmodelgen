@@ -3,7 +3,7 @@ from typing import Callable
 from .codegen.codegen import gen_code
 from .ir.parse.ir_parse import ir_parse
 from .ir.sqlite.sqlite_parse import collect_sqlite_ir
-from .utils.dependency_checker import check_postgres_deps
+from .utils.dependency_checker import check_postgres_deps, check_mysql_deps
 
 
 def gen_code_from_sql(
@@ -32,6 +32,26 @@ if check_postgres_deps():
     ) -> str:
         return gen_code(
             schema_ir=collect_postgres_ir(postgres_conn_addr, schema_name),
+            generate_relationships=generate_relationships,
+            table_name_transform=table_name_transform,
+            column_name_transform=column_name_transform,
+        )
+    
+
+if check_mysql_deps():
+    from mysql.connector import CMySQLConnection
+
+    from .ir.mysql import collect_mysql_ir
+
+    def gen_code_from_mysql(
+        conn: CMySQLConnection,
+        dbname: str,
+        generate_relationships: bool = False,
+        table_name_transform: Callable[[str], str] | None = None,
+        column_name_transform: Callable[[str], str] | None = None,
+    ):
+        return gen_code(
+            schema_ir=collect_mysql_ir(cnx=conn, dbname=dbname),
             generate_relationships=generate_relationships,
             table_name_transform=table_name_transform,
             column_name_transform=column_name_transform,

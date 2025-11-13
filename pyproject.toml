@@ -16,12 +16,17 @@ classifiers = [
     "Topic :: Software Development :: Code Generators",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12"
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14"
 ]
 
 [project.optional-dependencies]
 postgres = [
     "psycopg[binary]>=3.2.6",
+]
+mysql = [
+    "mysql-connector-python>=9.5.0",
 ]
 
 [tool.uv]
