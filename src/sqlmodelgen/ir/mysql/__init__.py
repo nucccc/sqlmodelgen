@@ -47,7 +47,7 @@ class MySQLCollector:
 
 
 def collect_mysql_ir(cnx: CMySQLConnection, dbname: str) -> SchemaIR:
-    return ir_build(collector=MySQLCollector(
+	return ir_build(collector=MySQLCollector(
 		cnx=cnx,
 		dbname=dbname
 	))
@@ -77,7 +77,7 @@ def collect_columns(
 		yield ColQueryData(
 			name=col_name,
 			data_type=data_type,
-			is_nullable=is_nullable
+			is_nullable=is_nullable=='YES'
 		)
 
 
@@ -140,15 +140,15 @@ def collect_primary_keys(
 		TABLE_NAME,
 		COLUMN_NAME
 	FROM
-		information_schema.COLUMNS
+		information_schema.KEY_COLUMN_USAGE
 	WHERE
-		IS_NULLABLE = 'PRIMARY'
-		AND TABLE_SCHEMA = 'f{schema_name}'
+		CONSTRAINT_NAME = 'PRIMARY'
+		AND TABLE_SCHEMA = '{schema_name}'
 	ORDER BY
 		TABLE_SCHEMA,
 		TABLE_NAME,
 		ORDINAL_POSITION;''')
-	
+
 	result: dict[str, set[str]] = dict()
 	
 	for table_name, col_name in cur.fetchall():
