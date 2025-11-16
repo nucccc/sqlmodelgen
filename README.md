@@ -9,6 +9,7 @@ It accepts in input the following sources:
 * direct `CREATE TABLE` sql statements
 * sqlite file path
 * postgres connection string
+* mysql connection from the [mysql-connector-python](https://github.com/mysql/mysql-connector-python) library
 
 ## Installation
 
@@ -67,6 +68,20 @@ from sqlmodelgen import gen_code_from_postgres
 code = gen_code_from_postgres('postgres://USER:PASSWORD@HOST:PORT/DBNAME')
 ```
 
+### Generating from MYSQL
+
+The separate `mysql` extension is required, it can be installed with `pip install sqlmodelgen[mysql]`.
+
+```python
+import mysql.connector
+from sqlmodelgen import gen_code_from_mysql
+
+# instantiate your connection
+conn = mysql.connector.connect(host='YOURHOST', port=3306, user='YOURUSER', password='YOURPASSWORD')
+
+code = gen_code_from_mysql(conn, 'YOURDBNAME')
+```
+
 ### Relationships
 
 `sqlmodelgen` allows to build relationships by passing the argument `generate_relationships=True` to the functions:
@@ -74,6 +89,7 @@ code = gen_code_from_postgres('postgres://USER:PASSWORD@HOST:PORT/DBNAME')
 * `gen_code_from_sql`
 * `gen_code_from_sqlite`
 * `gen_code_from_postgres`
+* `gen_code_from_mysql`
 
 In such case `sqlmodelgen` is going to generate relationships between classes based on the foreign keys retrieved.
 The following example
