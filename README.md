@@ -4,7 +4,7 @@
 
 | Name                                                            |    Stmts |     Miss |   Cover |   Missing |
 |---------------------------------------------------------------- | -------: | -------: | ------: | --------: |
-| src/sqlmodelgen/\_\_init\_\_.py                                 |        4 |        0 |    100% |           |
+| src/sqlmodelgen/\_\_init\_\_.py                                 |        6 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/cir\_to\_full\_ast/code\_ir\_to\_ast.py |       27 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/cir\_to\_full\_ast/to\_ast\_imports.py  |       36 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_cir.py                  |       23 |        0 |    100% |           |
@@ -16,13 +16,15 @@
 | src/sqlmodelgen/codegen/codegen.py                              |        9 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/convert\_data\_type.py                  |       28 |        0 |    100% |           |
 | src/sqlmodelgen/ir/ir.py                                        |       24 |        6 |     75% | 37, 49-53 |
+| src/sqlmodelgen/ir/mysql/\_\_init\_\_.py                        |       59 |        0 |    100% |           |
 | src/sqlmodelgen/ir/parse/ir\_parse.py                           |       61 |        2 |     97% |   60, 124 |
 | src/sqlmodelgen/ir/parse/org\_parse.py                          |       40 |        0 |    100% |           |
 | src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       66 |        0 |    100% |           |
+| src/sqlmodelgen/ir/query/\_\_init\_\_.py                        |       35 |        3 |     91% |43, 46, 49 |
 | src/sqlmodelgen/ir/sqlite/sqlite\_parse.py                      |       43 |        0 |    100% |           |
-| src/sqlmodelgen/sqlmodelgen.py                                  |       13 |        0 |    100% |           |
-| src/sqlmodelgen/utils/dependency\_checker.py                    |        6 |        2 |     67% |       4-5 |
-|                                                       **TOTAL** |  **515** |   **11** | **98%** |           |
+| src/sqlmodelgen/sqlmodelgen.py                                  |       18 |        0 |    100% |           |
+| src/sqlmodelgen/utils/dependency\_checker.py                    |       12 |        4 |     67% |4-5, 12-13 |
+|                                                       **TOTAL** |  **622** |   **16** | **97%** |           |
 
 
 ## Setup coverage badge
