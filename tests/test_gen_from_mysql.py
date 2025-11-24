@@ -9,7 +9,8 @@ from helpers.mysql_container import mysql_docker
 
 
 def test_mysql():
-    with mysql_docker() as (mysqld, conn):
+    with mysql_docker() as msagg:
+        conn = msagg.conn
         cur = conn.cursor()
 
         sqls = ['''CREATE TABLE IF NOT EXISTS Hero (
@@ -37,8 +38,6 @@ def test_mysql():
 
         code = gen_code_from_mysql(conn, 'nucdb')
 
-        print(code)
-
         expected_code ='''from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class Hero(SQLModel, table=True):
@@ -60,7 +59,8 @@ class Persons(SQLModel, table=True):
 
 
 def test_mysql_fk_rel():
-    with mysql_docker() as (mysqld, conn):
+    with mysql_docker() as msagg:
+        conn = msagg.conn
         cur = conn.cursor()
 
         sqls = ['''CREATE TABLE nations(
@@ -89,8 +89,6 @@ def test_mysql_fk_rel():
 
         code = gen_code_from_mysql(conn, 'nucdb')
 
-        print(code)
-
         expected_code ='''from sqlmodel import SQLModel, Field
 
 class Athletes(SQLModel, table=True):
@@ -109,3 +107,64 @@ class Nations(SQLModel, table=True):
     name: str'''
         
         assert collect_code_info(code) == collect_code_info(expected_code)
+
+
+def test_code_running():
+    '''
+    test_code_running tests if the actual code generated from sqlmodelgen
+    can actually be used to interact with a database with the tables already
+    created
+    '''
+
+    with mysql_docker() as msagg:
+        conn = msagg.conn
+        cur = conn.cursor()
+
+        cur.execute('CREATE DATABASE nucdb')
+
+        cur.execute('USE nucdb')
+
+        cur.execute('''CREATE TABLE IF NOT EXISTS Hero (
+            id INT AUTO_INCREMENT PRIMARY KEY, 
+            name VARCHAR(255), 
+            secret_name VARCHAR(255), 
+            age INT
+        )
+        ''')
+
+        conn.commit()
+
+        code = gen_code_from_mysql(conn, 'nucdb')
+
+        # additional code which is supposed to interact with the database
+        # and verify the success of the activity
+        additional_code = f'''
+
+from sqlmodel import Session, create_engine, select
+
+engine_type = 'mysql+mysqlconnector'
+username = '{msagg.user}'
+password = '{msagg.psw}'
+host = 'localhost:3306'
+db_name = 'nucdb'
+
+engine = create_engine(
+    f'{{engine_type}}://{{username}}:{{password}}@{{host}}/{{db_name}}'
+)
+
+with Session(engine) as session:
+    hero = Hero(name='Robin', secret_name='who knows?', age=17)
+    session.add(hero)
+    session.commit()
+
+    heroes = session.exec(select(Hero)).all()
+
+    assert len(heroes) == 1
+    assert heroes[0].name == 'Robin'
+    assert heroes[0].age == 17
+    assert heroes[0].secret_name == 'who knows?'
+'''
+
+        # executing the generated code together with the code supposed to verify
+        # its correct functioning
+        exec(code + additional_code, globals(), globals())
