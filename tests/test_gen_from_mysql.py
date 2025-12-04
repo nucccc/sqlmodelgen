@@ -43,7 +43,7 @@ def test_mysql():
 
 class Hero(SQLModel, table=True):
     __tablename__ = 'Hero'
-    __table_args__ = [UniqueConstraint('secret_name')]
+    __table_args__ = (UniqueConstraint('secret_name'), )
     id: int | None
     name: str | None
     secret_name: str | None
