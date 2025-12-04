@@ -247,7 +247,11 @@ def collect_table_name(stat: ast.Assign) -> str | None:
 def collect_uniques(table_args: ast.expr) -> set[tuple[str]]:
     uniques: set[tuple[str]] = set()
 
-    if isinstance(table_args, ast.List):
+    # TODO: this shall support the parsing of all the possible
+    # types of values __table_args__ could possess, I remember
+    # also a dictionary being possible and maybe something else
+    # other than a tuple
+    if isinstance(table_args, ast.Tuple):
         for elt in table_args.elts:
             if isinstance(elt, ast.Call) and isinstance(elt.func, ast.Name) and elt.func.id == 'UniqueConstraint':
                 uniques.add(tuple(arg.value for arg in elt.args if isinstance(arg, ast.Constant)))
