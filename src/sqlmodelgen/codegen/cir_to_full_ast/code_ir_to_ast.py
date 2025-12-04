@@ -61,7 +61,7 @@ def gen_table_args(model_ir: ModelIR) -> ast.Assign | None:
     
     return ast.Assign(
         targets=[ast.Name('__table_args__')],
-        value=ast.List(
+        value=ast.Tuple(
             elts=[table_arg.to_expr() for table_arg in model_ir.table_args]
         )
     )
