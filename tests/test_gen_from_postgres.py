@@ -80,7 +80,7 @@ from datetime import date
                                                                       
 class Users(SQLModel, table=True):
     __tablename__ = 'users'
-    __table_args__ = [UniqueConstraint('email'), UniqueConstraint('name')]
+    __table_args__ = (UniqueConstraint('email'), UniqueConstraint('name'))
     id: UUID = Field(primary_key=True, default_factory=uuid4)
     email: str
     name: str
@@ -101,7 +101,7 @@ class Participations(SQLModel, table=True):
 
 class Leagues(SQLModel, table=True):
     __tablename__ = 'leagues'
-    __table_args__ = [UniqueConstraint('name')]
+    __table_args__ = (UniqueConstraint('name'),)
     id: UUID = Field(primary_key=True, default_factory=uuid4)
     name: str
     public: bool

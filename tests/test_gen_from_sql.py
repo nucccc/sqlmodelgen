@@ -91,16 +91,20 @@ def test_unique_single_column():
 	age INTEGER
 );'''
 
-    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from sqlmodel import SQLModel, Field, UniqueConstraint
+    code = gen_code_from_sql(sql)
+
+    assert collect_code_info(code) == collect_code_info('''from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class Hero(SQLModel, table = True):
 \t__tablename__ = 'Hero'
-\t__table_args__ = [UniqueConstraint('secret_name')]
+\t__table_args__ = (UniqueConstraint('secret_name'), )
 
 \tid: int = Field(primary_key=True)
 \tname: str
 \tsecret_name: str
 \tage: int | None''')
+    
+    exec(code, globals(), globals())
 
 
 def test_datetime():

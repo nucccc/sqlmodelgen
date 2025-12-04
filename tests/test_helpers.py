@@ -41,7 +41,7 @@ from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class a_table(SQLModel, table = True):
     __tablename__ = 'a_table'
-    __table_args__ = [UniqueConstraint('name')]
+    __table_args__ = (UniqueConstraint('name'), )
     id: int | None = Field(primary_key=True)
     name: str
     email: str | None''')
