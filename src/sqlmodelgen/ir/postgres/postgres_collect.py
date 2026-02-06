@@ -12,26 +12,7 @@ from sqlmodelgen.ir.ir import (
 	SchemaIR,
 	FKIR
 )
-
-@dataclass
-class ContraintsData:
-    uniques: dict[str, set[str]]
-    primary_keys: dict[str, set[str]]
-    foreingn_keys: dict[str, dict[str, FKIR]]
-
-    def is_unique(self, table_name: str, column_name: str) -> bool:
-        return column_name in self.uniques.get(table_name, set())
-    
-    def is_primary_key(self, table_name: str, column_name: str) -> bool:
-        return column_name in self.primary_keys.get(table_name, set())
-    
-    def get_foreign_key(self, table_name: str, column_name: str) -> FKIR | None:
-        table_fks = self.foreingn_keys.get(table_name)
-
-        if table_fks is None:
-            return None
-        
-        return table_fks.get(column_name)
+from sqlmodelgen.ir.query import ColQueryData, ContraintsData, ir_build
 
 
 def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:    
@@ -103,7 +84,7 @@ def collect_contraints(cursor: psycopg.Cursor, schema_name: str) -> ContraintsDa
     return ContraintsData(
         uniques=collect_uniques(cursor, schema_name),
         primary_keys=collect_primary_keys(cursor, schema_name),
-        foreingn_keys=collect_foreign_keys(cursor, schema_name)
+        foreign_keys=collect_foreign_keys(cursor, schema_name)
     )
 
 
