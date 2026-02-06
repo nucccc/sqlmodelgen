@@ -41,7 +41,7 @@ def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') ->
 
     constraints = collect_contraints(cursor, schema_name)
     
-    cursor.execute(tables_query(schema_name=schema_name))
+    cursor.execute('SELECT * FROM pg_catalog.pg_tables WHERE schemaname=%s', (schema_name, ))
     tables_data = cursor.fetchall()
 
     tables_names = [table_data[1] for table_data in tables_data]
@@ -66,10 +66,6 @@ def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') ->
         table_irs=table_irs
     )
 
-def tables_query(schema_name: str) -> str:
-    return f'SELECT * FROM pg_catalog.pg_tables WHERE schemaname=\'{schema_name}\''
-
-
 
 def collect_columns_ir(
     cursor: psycopg.Cursor,
@@ -77,7 +73,18 @@ def collect_columns_ir(
     schema_name: str,
     constraints: ContraintsData
 ) -> Iterator[ColIR]:
-    cursor.execute(cols_query(table_name, schema_name))
+    cursor.execute('''SELECT
+    column_name,
+    column_default,
+    is_nullable,
+    data_type,
+    is_updatable
+FROM
+    information_schema.columns
+WHERE
+    table_schema = %s AND table_name = %s''',
+        (schema_name, table_name)
+    )
 
     # NOTE: this code bvasically assumes the cursor not to have a row_factory
     for column_name, column_default, is_nullable, data_type, is_updatable in cursor.fetchall():
@@ -91,10 +98,6 @@ def collect_columns_ir(
         )
 
 
-def cols_query(table_name: str, schema_name: str) -> str:
-    return f'SELECT column_name, column_default, is_nullable, data_type, is_updatable FROM information_schema.columns WHERE table_schema = \'{schema_name}\' AND table_name = \'{table_name}\''
-
-
 def collect_contraints(cursor: psycopg.Cursor, schema_name: str) -> ContraintsData:
     # TODO: possibly all of that stuff could be made async at a point
     return ContraintsData(
@@ -105,7 +108,7 @@ def collect_contraints(cursor: psycopg.Cursor, schema_name: str) -> ContraintsDa
 
 
 def collect_uniques(cursor: psycopg.Cursor, schema_name: str) -> dict[str, set[str]]:
-    cursor.execute(f'''SELECT
+    cursor.execute('''SELECT
     tc.table_name, 
     tc.constraint_name,
     kcu.column_name
@@ -116,10 +119,12 @@ JOIN
     ON tc.constraint_name = kcu.constraint_name
     AND tc.table_schema = kcu.table_schema
 WHERE 
-    tc.constraint_type = 'UNIQUE' AND tc.table_schema = '{schema_name}'
+    tc.constraint_type = 'UNIQUE' AND tc.table_schema = %s
 ORDER BY 
     tc.table_schema, 
-    tc.table_name''')
+    tc.table_name''',
+        (schema_name,)
+    )
 
     rows = cursor.fetchall()
 
@@ -134,7 +139,7 @@ ORDER BY
 
 
 def collect_primary_keys(cursor: psycopg.Cursor, schema_name: str) -> dict[str, set[str]]:
-    cursor.execute(f'''SELECT
+    cursor.execute('''SELECT
     tc.table_name, 
     tc.constraint_name,
     kcu.column_name
@@ -145,10 +150,12 @@ JOIN
     ON tc.constraint_name = kcu.constraint_name
     AND tc.table_schema = kcu.table_schema
 WHERE 
-    tc.constraint_type = 'PRIMARY KEY' AND tc.table_schema = '{schema_name}'
+    tc.constraint_type = 'PRIMARY KEY' AND tc.table_schema = %s
 ORDER BY 
     tc.table_schema, 
-    tc.table_name''')
+    tc.table_name''',
+        (schema_name,)
+    )
 
     rows = cursor.fetchall()
 
@@ -169,7 +176,7 @@ def collect_foreign_keys(
     # TODO: extend this to external tables from other schemas (it appears
     # in postgres one can have foreign key constraints between tables of
     # different schemas)
-    cursor.execute(f'''SELECT
+    cursor.execute('''SELECT
     tc.table_schema,
     tc.table_name,
     tc.constraint_name,
@@ -188,9 +195,11 @@ JOIN
     ON ccu.constraint_name = tc.constraint_name
     AND ccu.table_schema = tc.table_schema
 WHERE
-    tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = '{schema_name}'
+    tc.constraint_type = 'FOREIGN KEY' AND tc.table_schema = %s
 ORDER BY
-    tc.table_name''')
+    tc.table_name''',
+        (schema_name,)
+    )
 
     rows = cursor.fetchall()
 
