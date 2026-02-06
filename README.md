@@ -19,12 +19,12 @@
 | src/sqlmodelgen/ir/mysql/\_\_init\_\_.py                        |       59 |        0 |    100% |           |
 | src/sqlmodelgen/ir/parse/ir\_parse.py                           |       61 |        2 |     97% |   60, 124 |
 | src/sqlmodelgen/ir/parse/org\_parse.py                          |       40 |        0 |    100% |           |
-| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       66 |        0 |    100% |           |
+| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       62 |        0 |    100% |           |
 | src/sqlmodelgen/ir/query/\_\_init\_\_.py                        |       35 |        3 |     91% |43, 46, 49 |
 | src/sqlmodelgen/ir/sqlite/sqlite\_parse.py                      |       43 |        0 |    100% |           |
 | src/sqlmodelgen/sqlmodelgen.py                                  |       18 |        0 |    100% |           |
 | src/sqlmodelgen/utils/dependency\_checker.py                    |       12 |        4 |     67% |4-5, 12-13 |
-|                                                       **TOTAL** |  **622** |   **16** | **97%** |           |
+| **TOTAL**                                                       |  **618** |   **16** | **97%** |           |
 
 
 ## Setup coverage badge
