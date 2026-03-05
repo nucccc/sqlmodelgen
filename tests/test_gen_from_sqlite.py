@@ -2,6 +2,7 @@ import sqlite3
 
 from sqlmodelgen import gen_code_from_sqlite
 
+from helpers.cli_helpers import launch_cli_in_tmpfile
 from helpers.helpers import collect_code_info
 
 
@@ -77,4 +78,17 @@ class Athletes(SQLModel, table=True):
     id: int | None = Field(primary_key=True)
     name: str
     nation_id: int = Field(foreign_key='nations.id')''')
-    
+
+
+def test_cli_sqlite():
+    code_generated = launch_cli_in_tmpfile(['-s', 'tests/files/hero.db'])
+
+    assert collect_code_info(code_generated) == collect_code_info('''from sqlmodel import SQLModel, Field
+
+class Hero(SQLModel, table = True):
+\t__tablename__ = 'hero'
+
+\tid: int = Field(primary_key=True)
+\tname: str
+\tsecret_name: str
+\tage: int | None''')
