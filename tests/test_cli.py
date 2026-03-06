@@ -5,6 +5,7 @@ import pytest
 
 from sqlmodelgen.cli import main_cli
 
+
 def test_cli_no_source():
     with pytest.raises(SystemExit):
         main_cli([])
@@ -16,3 +17,7 @@ def test_cli_no_source():
         main_cli(['-r'])
 
     # assert False
+
+def test_cli_mysql_without_dbname():
+    with pytest.raises(SystemExit):
+        main_cli(['-m', 'mysql://johndoe@localhost:6333'])
