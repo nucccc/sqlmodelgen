@@ -28,8 +28,8 @@ def _build_parser() -> argparse.ArgumentParser:
     input_group = parser.add_mutually_exclusive_group(required=True)
     input_group.add_argument('-f', '--file', type=Path, help='SQL file path')
     input_group.add_argument('-s', '--sqlite', type=Path, help='SQLite database path')
-    input_group.add_argument('-p', '--postgres', type=str, help='PostgreSQL connection URL')
-    input_group.add_argument('-m', '--mysql', type=str, help='MySQL connection URL')
+    input_group.add_argument('-p', '--postgres', type=str, help='PostgreSQL connection URL, requires postgres extension to be installed with "pip install sqlmodelgen[postgres]"')
+    input_group.add_argument('-m', '--mysql', type=str, help='MySQL connection URL, requires mysql extension to be installed with "pip install sqlmodelgen[mysql]"')
 
     # Additional options
     parser.add_argument('-o', '--output', type=Path, help='Output file (default: stdout)')
