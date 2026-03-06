@@ -21,3 +21,7 @@ def test_cli_no_source():
 def test_cli_mysql_without_dbname():
     with pytest.raises(SystemExit):
         main_cli(['-m', 'mysql://johndoe@localhost:6333'])
+
+def test_cli_mysql_wrong_uri():
+    with pytest.raises(SystemExit):
+        main_cli(['-m', 'postgres://johndoe@localhost:6333'])
