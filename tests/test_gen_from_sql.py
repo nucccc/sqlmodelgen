@@ -1,5 +1,9 @@
+from pathlib import Path
+from tempfile import tempdir
+
 from sqlmodelgen import gen_code_from_sql
 
+from helpers.cli_helpers import launch_cli_in_tmpfile
 from helpers.helpers import collect_code_info
 
 
@@ -343,3 +347,45 @@ class Table2(SQLModel, table = True):
 \tf: str
 \tf_id: int | None = Field(foreign_key="table1.id")
 \tf_rel: Table1 | None = Relationship(back_populates='table2s')''')
+
+
+def test_foreign_key_and_relationship_with_cli():
+    '''
+    testing the case of a foreign key, with the generation
+    of relationships
+    '''
+
+    schema = '''CREATE TABLE nations(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL
+);
+
+CREATE TABLE athletes(
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    nation_id BIGSERIAL,
+    FOREIGN KEY (nation_id) REFERENCES nations(id)
+);'''
+
+    #writing schema to temporary directory
+    tmppath = Path(tempdir) / "schema_kf.sql"
+    tmppath.write_text(schema)
+
+    code = launch_cli_in_tmpfile(['-f', str(tmppath), '-r'])
+
+    assert collect_code_info(code) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship
+
+class Nations(SQLModel, table = True):
+\t__tablename__ = 'nations'
+
+\tid: int | None = Field(primary_key=True)
+\tname: str
+\tathletess: list['Athletes'] = Relationship(back_populates='nation')
+                                                                             
+class Athletes(SQLModel, table = True):
+\t__tablename__ = 'athletes'
+
+\tid: int | None = Field(primary_key=True)
+\tname: str
+\tnation_id: int | None = Field(foreign_key="nations.id")
+\tnation: Nations | None = Relationship(back_populates='athletess')''')
