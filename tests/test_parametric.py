@@ -38,7 +38,25 @@ def sqlite_verify(sql: str, rels: bool) -> str:
         cursor.execute(sql)
         conn.commit()
 
-    return gen_code_from_sqlite(str(sqlite_path), rels)
+    func_code = gen_code_from_sqlite(str(sqlite_path), rels)
+    short_arg_cli_code = _sqlite_cli(sqlite_path, rels, True)
+    long_arg_cli_code = _sqlite_cli(sqlite_path, rels, False)
+
+    assert func_code == short_arg_cli_code
+    assert func_code == long_arg_cli_code
+
+    return func_code
+
+def _sqlite_cli(sqlite_path: Path, rels: bool, short_arg: bool = False) -> str:
+    args = [
+        '-s' if short_arg else '--sqlite',
+        str(sqlite_path),
+    ]
+
+    if rels:
+        args.append('-r')
+
+    return launch_cli_in_tmpfile(args=args)
 
 def postgres_verify(sql: str, rels: bool, schema_name: str = 'public') -> str:
     with postgres_container() as pgc:
