@@ -19,6 +19,7 @@ from sqlmodelgen import (
     gen_code_from_sqlite,
 )
 
+from helpers.cli_helpers import launch_cli_in_tmpfile
 from helpers.helpers import collect_code_info
 from helpers.postgres_container import postgres_container
 
@@ -46,11 +47,53 @@ def postgres_verify(sql: str, rels: bool, schema_name: str = 'public') -> str:
             cursor.execute(sql)
             conn.commit()
 
-        return gen_code_from_postgres(
+        # generating code from function
+        func_code = gen_code_from_postgres(
             postgres_conn_addr=pgc.get_conn_string(),
             schema_name=schema_name,
             generate_relationships=rels,
         )
+
+        short_arg_cli_code = _postres_cli(
+            conn_string=pgc.get_conn_string(),
+            rels=rels,
+            schema_name=schema_name,
+            short_arg=True
+        )
+
+        long_arg_cli_code = _postres_cli(
+            conn_string=pgc.get_conn_string(),
+            rels=rels,
+            schema_name=schema_name,
+            short_arg=False
+        )
+
+        # verifying all code matches
+        assert func_code == short_arg_cli_code
+        assert func_code == long_arg_cli_code
+
+        return func_code
+    
+def _postres_cli(
+    conn_string: str,
+    rels: bool,
+    schema_name: str = 'public',
+    short_arg: bool = False
+) -> str:
+    
+    args = [
+        '-p' if short_arg else '--postgres',
+        conn_string,
+    ]
+
+    if rels:
+        args.append('-r')
+
+    if schema_name != 'public':
+        args.append('--schema')
+        args.append(schema_name)
+
+    return launch_cli_in_tmpfile(args=args)
 
 codegens: list[CodeGenFunc] = [
     parse_verify,
