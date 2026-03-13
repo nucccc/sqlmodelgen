@@ -35,6 +35,7 @@ dev-dependencies = [
     "coverage>=7.6.9",
     "docker>=7.1.0",
     "sqlmodel>=0.0.27",
+    "uuid>=1.30",
 ]
 
 [build-system]
