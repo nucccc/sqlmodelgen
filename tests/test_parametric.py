@@ -14,6 +14,7 @@ import psycopg
 from uuid import uuid4
 
 from sqlmodelgen import (
+    gen_code_from_mysql,
     gen_code_from_postgres,
     gen_code_from_sql,
     gen_code_from_sqlite,
@@ -21,6 +22,7 @@ from sqlmodelgen import (
 
 from helpers.cli_helpers import launch_cli_in_tmpfile
 from helpers.helpers import collect_code_info
+from helpers.mysql_container import mysql_docker
 from helpers.postgres_container import postgres_container
 
 CodeGenFunc = Callable[[str, bool], str]
@@ -137,10 +139,34 @@ def _postres_cli(
 
     return launch_cli_in_tmpfile(args=args)
 
+
+def mysql_verify(sql: str, rels: bool, dbname: str = 'testdb') -> str:
+    with mysql_docker() as (mysqld, conn):
+        cur = conn.cursor()
+
+        sqls = [sql]
+
+        cur.execute(f'CREATE DATABASE IF NOT EXISTS {dbname}')
+
+        cur.execute(f'USE {dbname}')
+
+        for sql in sqls:
+            cur.execute(sql)
+
+        conn.commit()
+
+        func_code = gen_code_from_mysql(conn, dbname)
+
+        # TODO: get the connection string to invoke the cli
+
+    return func_code
+
+
 codegens: list[CodeGenFunc] = [
     parse_verify,
     sqlite_verify,
     postgres_verify,
+#    mysql_verify,
 ]
 codegen_ids = [codegen.__name__ for codegen in codegens]
 
@@ -157,7 +183,7 @@ def test_basic(codegen):
     person_id int NOT NULL,
     last_name varchar NOT NULL,
     first_name varchar NOT NULL,
-    address varchar NOT NULL,
+    address varchar,
     city varchar NOT NULL
 );''',
         expected='''from sqlmodel import SQLModel
@@ -168,7 +194,7 @@ class People(SQLModel, table = True):
     person_id: int
     last_name: str
     first_name: str
-    address: str
+    address: str | None
     city: str''',
         rels=False
     )
