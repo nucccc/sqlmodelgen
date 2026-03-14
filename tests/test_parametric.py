@@ -162,20 +162,17 @@ def mysql_verify(sql: str, rels: bool, dbname: str = 'testdb') -> str:
     return func_code
 
 
-codegens: list[CodeGenFunc] = [
-    parse_verify,
-    sqlite_verify,
-    postgres_verify,
-#    mysql_verify,
-]
-codegen_ids = [codegen.__name__ for codegen in codegens]
-
 def verify(codegen: CodeGenFunc, sql: str, expected: str, rels: bool):
     generated = codegen(sql, rels)
     assert collect_code_info(generated) == collect_code_info(expected)
 
 
-@pytest.mark.parametrize("codegen", codegens, ids=codegen_ids)
+def parametrize_codegens(*codegens):
+    ids = [cg.__name__ for cg in codegens]
+    return pytest.mark.parametrize("codegen", codegens, ids=ids)
+
+
+@parametrize_codegens(parse_verify, sqlite_verify, postgres_verify)
 def test_basic(codegen):
     verify(
         codegen=codegen,
