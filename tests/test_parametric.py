@@ -26,7 +26,31 @@ from helpers.postgres_container import postgres_container
 CodeGenFunc = Callable[[str, bool], str]
 
 def parse_verify(sql: str, rels: bool) -> str:
-    return gen_code_from_sql(sql, rels)
+    # preparinf the temp file for the cli
+    fpath = Path(tempdir) / f"{uuid4()}.sql"
+    fpath.write_text(sql)
+
+    func_code = gen_code_from_sql(sql, rels)
+    short_arg_cli_code = _parse_cli(fpath, rels, True)
+    long_arg_cli_code = _parse_cli(fpath, rels, False)
+
+    assert func_code == short_arg_cli_code
+    assert func_code == long_arg_cli_code
+
+    return func_code
+
+
+def _parse_cli(fpath: Path, rels: bool, short_arg: bool = False) -> str:
+    args = [
+        '-f' if short_arg else '--file',
+        str(fpath),
+    ]
+
+    if rels:
+        args.append('-r')
+
+    return launch_cli_in_tmpfile(args=args)
+
 
 def sqlite_verify(sql: str, rels: bool) -> str:
     # TODO: prepare interface for possibly several sql
