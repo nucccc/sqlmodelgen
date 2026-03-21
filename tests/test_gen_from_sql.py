@@ -1,10 +1,7 @@
-from pathlib import Path
-from tempfile import tempdir
-
 from sqlmodelgen import gen_code_from_sql
 
-from helpers.cli_helpers import launch_cli_in_tmpfile
 from helpers.helpers import collect_code_info
+from helpers.verify_helpers import parse_verify
 
 
 # TODO: i need to test unique
@@ -12,19 +9,19 @@ from helpers.helpers import collect_code_info
 
 
 def test_simple_table():
-    '''
+    """
     testing the code generation for a single table
-    '''
+    """
 
-    schema = '''CREATE TABLE Persons (
+    schema = """CREATE TABLE Persons (
     PersonID int NOT NULL,
     LastName varchar(255) NOT NULL,
     FirstName varchar(255) NOT NULL,
     Address varchar(255) NOT NULL,
     City varchar(255) NOT NULL
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel
+    assert collect_code_info(parse_verify(schema, False)) == collect_code_info("""from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
     __tablename__ = 'Persons'
@@ -33,23 +30,23 @@ class Persons(SQLModel, table = True):
     LastName: str
     FirstName: str
     Address: str
-    City: str''')
+    City: str""")
 
 
 def test_nullable():
-    '''
+    """
     testing the possibility of optional types
-    '''
+    """
 
-    schema = '''CREATE TABLE Persons (
+    schema = """CREATE TABLE Persons (
     PersonID int NOT NULL,
     LastName varchar(255) NOT NULL,
     FirstName varchar(255) NOT NULL,
     Address varchar(255),
     City varchar(255)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel
+    assert collect_code_info(parse_verify(schema, False)) == collect_code_info("""from sqlmodel import SQLModel
 
 class Persons(SQLModel, table = True):
     __tablename__ = 'Persons'
@@ -58,24 +55,24 @@ class Persons(SQLModel, table = True):
     LastName: str
     FirstName: str
     Address: str | None
-    City: str | None''')
+    City: str | None""")
 
 
 def test_primary_key_separate_constraint():
-    '''
+    """
     testing the case in which the primary key is declared as
     a separate constraint
-    '''
+    """
 
-    schema = '''CREATE TABLE Hero (
+    schema = """CREATE TABLE Hero (
 	id INTEGER NOT NULL, 
 	name VARCHAR NOT NULL, 
 	secret_name VARCHAR NOT NULL, 
 	age INTEGER, 
 	PRIMARY KEY (id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(parse_verify(schema, False)) == collect_code_info("""from sqlmodel import SQLModel, Field
 
 class Hero(SQLModel, table = True):
 \t__tablename__ = 'Hero'
@@ -83,21 +80,21 @@ class Hero(SQLModel, table = True):
 \tid: int = Field(primary_key=True)
 \tname: str
 \tsecret_name: str
-\tage: int | None''')
+\tage: int | None""")
 
 
 def test_unique_single_column():
 
-    sql = '''CREATE TABLE Hero (
+    sql = """CREATE TABLE Hero (
 	id INTEGER PRIMARY KEY NOT NULL, 
 	name VARCHAR NOT NULL, 
 	secret_name VARCHAR NOT NULL UNIQUE, 
 	age INTEGER
-);'''
+);"""
 
-    code = gen_code_from_sql(sql)
+    code = parse_verify(sql, False)
 
-    assert collect_code_info(code) == collect_code_info('''from sqlmodel import SQLModel, Field, UniqueConstraint
+    assert collect_code_info(code) == collect_code_info("""from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class Hero(SQLModel, table = True):
 \t__tablename__ = 'Hero'
@@ -106,36 +103,36 @@ class Hero(SQLModel, table = True):
 \tid: int = Field(primary_key=True)
 \tname: str
 \tsecret_name: str
-\tage: int | None''')
-    
+\tage: int | None""")
+
     exec(code, globals(), globals())
 
 
 def test_datetime():
 
-    sql = '''CREATE TABLE ts (
+    sql = """CREATE TABLE ts (
 	id INTEGER PRIMARY KEY NOT NULL, 
 	dt TIMESTAMP WITH TIME ZONE
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from datetime import datetime
+    assert collect_code_info(parse_verify(sql, False)) == collect_code_info("""from datetime import datetime
 from sqlmodel import SQLModel, Field
 
 class Ts(SQLModel, table = True):
 \t__tablename__ = 'ts'
 
 \tid: int = Field(primary_key=True)
-\tdt: datetime | None''')
-    
+\tdt: datetime | None""")
+
 
 def test_date():
-    sql = '''CREATE TABLE bdays (
+    sql = """CREATE TABLE bdays (
 	id INTEGER PRIMARY KEY NOT NULL,
     name VARCHAR NOT NULL,
 	date_of_birth DATE NOT NULL
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from datetime import date
+    assert collect_code_info(parse_verify(sql, False)) == collect_code_info("""from datetime import date
 from sqlmodel import SQLModel, Field
 
 class Bdays(SQLModel, table = True):
@@ -144,46 +141,47 @@ class Bdays(SQLModel, table = True):
 \tid: int = Field(primary_key=True)
 \tname: str
 \tdate_of_birth: date
-''')
+""")
 
 
 def test_any_import():
     # testing that from typing import Any happens in the face of unknown types
 
-    sql = '''CREATE TABLE accounts (
+    sql = """CREATE TABLE accounts (
 	id INTEGER PRIMARY KEY NOT NULL, 
 	account MONEY
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(sql)) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(parse_verify(sql, False)) == collect_code_info("""from sqlmodel import SQLModel, Field
 from typing import Any
 
 class Accounts(SQLModel, table = True):
 \t__tablename__ = 'accounts'
 
 \tid: int = Field(primary_key=True)
-\taccount: Any | None''')
-    
+\taccount: Any | None""")
+
 
 def test_custom_transforms():
     # testing for custom table and column names transformations
+    # NOTE: CLI does not support custom transforms, so we test the function directly
 
-    sql = '''CREATE TABLE accounts (
+    sql = """CREATE TABLE accounts (
 	id INTEGER PRIMARY KEY NOT NULL, 
 	account INTEGER
-);'''
+);"""
 
     def bmbmnk_transform(input: str) -> str:
-        result = ''
+        result = ""
         for i, c in enumerate(input):
             if i % 2 == 1:
                 result += c.capitalize()
             else:
                 result += c
         return result
-    
+
     def bmbmnk_transform_rev(input: str) -> str:
-        result = ''
+        result = ""
         for i, c in enumerate(input):
             if i % 2 == 0:
                 result += c.capitalize()
@@ -191,26 +189,27 @@ def test_custom_transforms():
                 result += c
         return result
 
-
-    assert collect_code_info(gen_code_from_sql(
-        sql,
-        table_name_transform=bmbmnk_transform_rev,
-        column_name_transform=bmbmnk_transform
-    )) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(
+        gen_code_from_sql(
+            sql,
+            table_name_transform=bmbmnk_transform_rev,
+            column_name_transform=bmbmnk_transform,
+        )
+    ) == collect_code_info("""from sqlmodel import SQLModel, Field
 
 class AcCoUnTs(SQLModel, table = True):
 \t__tablename__ = 'accounts'
 
 \tiD: int = Field(primary_key=True, sa_column_kwargs={'name':'id'})
-\taCcOuNt: int | None = Field(sa_column_kwargs={'name':'account'})''')
+\taCcOuNt: int | None = Field(sa_column_kwargs={'name':'account'})""")
 
 
 def test_foreign_key():
-    '''
+    """
     testing the case of a foreign key, without relationships
-    '''
+    """
 
-    schema = '''CREATE TABLE nations(
+    schema = """CREATE TABLE nations(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
@@ -220,9 +219,9 @@ CREATE TABLE athletes(
     name TEXT NOT NULL,
     nation_id BIGSERIAL,
     FOREIGN KEY (nation_id) REFERENCES nations(id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(parse_verify(schema, False)) == collect_code_info("""from sqlmodel import SQLModel, Field
 
 class Nations(SQLModel, table = True):
 \t__tablename__ = 'nations'
@@ -235,16 +234,16 @@ class Athletes(SQLModel, table = True):
 
 \tid: int | None = Field(primary_key=True)
 \tname: str
-\tnation_id: int | None = Field(foreign_key="nations.id")''')
+\tnation_id: int | None = Field(foreign_key="nations.id")""")
 
 
 def test_foreign_key_and_relationship():
-    '''
+    """
     testing the case of a foreign key, with the generation
     of relationships
-    '''
+    """
 
-    schema = '''CREATE TABLE nations(
+    schema = """CREATE TABLE nations(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
@@ -254,9 +253,9 @@ CREATE TABLE athletes(
     name TEXT NOT NULL,
     nation_id BIGSERIAL,
     FOREIGN KEY (nation_id) REFERENCES nations(id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema, True)) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship
+    assert collect_code_info(parse_verify(schema, True)) == collect_code_info("""from sqlmodel import SQLModel, Field, Relationship
 
 class Nations(SQLModel, table = True):
 \t__tablename__ = 'nations'
@@ -271,55 +270,55 @@ class Athletes(SQLModel, table = True):
 \tid: int | None = Field(primary_key=True)
 \tname: str
 \tnation_id: int | None = Field(foreign_key="nations.id")
-\tnation: Nations | None = Relationship(back_populates='athletess')''')
+\tnation: Nations | None = Relationship(back_populates='athletess')""")
 
 
 def test_foreign_key_missing_table():
-    '''
+    """
     testing when the foreign table does not exist
-    '''
+    """
 
-    schema = '''CREATE TABLE athletes(
+    schema = """CREATE TABLE athletes(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     nation_id BIGSERIAL,
     FOREIGN KEY (nation_id) REFERENCES nations(id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema)) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(parse_verify(schema, False)) == collect_code_info("""from sqlmodel import SQLModel, Field
 
 class Athletes(SQLModel, table = True):
 \t__tablename__ = 'athletes'
 
 \tid: int | None = Field(primary_key=True)
 \tname: str
-\tnation_id: int | None = Field(foreign_key="nations.id")''')
-    
+\tnation_id: int | None = Field(foreign_key="nations.id")""")
 
-def test_foreign_key_and_relationship_missing_table():    
-    schema = '''CREATE TABLE athletes(
+
+def test_foreign_key_and_relationship_missing_table():
+    schema = """CREATE TABLE athletes(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     nation_id BIGSERIAL,
     FOREIGN KEY (nation_id) REFERENCES nations(id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema, True)) == collect_code_info('''from sqlmodel import SQLModel, Field
+    assert collect_code_info(parse_verify(schema, True)) == collect_code_info("""from sqlmodel import SQLModel, Field
 
 class Athletes(SQLModel, table = True):
 \t__tablename__ = 'athletes'
 
 \tid: int | None = Field(primary_key=True)
 \tname: str
-\tnation_id: int | None = Field(foreign_key="nations.id")''')
+\tnation_id: int | None = Field(foreign_key="nations.id")""")
 
 
 def test_foreign_key_and_relationship_same_name():
-    '''
+    """
     testing the case of a foreign key, with the name
-    '''
+    """
 
-    schema = '''CREATE TABLE table1(
+    schema = """CREATE TABLE table1(
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL
 );
@@ -329,9 +328,9 @@ CREATE TABLE table2(
     f TEXT NOT NULL,
     f_id BIGSERIAL,
     FOREIGN KEY (f_id) REFERENCES table1(id)
-);'''
+);"""
 
-    assert collect_code_info(gen_code_from_sql(schema, True)) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship
+    assert collect_code_info(parse_verify(schema, True)) == collect_code_info("""from sqlmodel import SQLModel, Field, Relationship
 
 class Table1(SQLModel, table = True):
 \t__tablename__ = 'table1'
@@ -346,46 +345,4 @@ class Table2(SQLModel, table = True):
 \tid: int | None = Field(primary_key=True)
 \tf: str
 \tf_id: int | None = Field(foreign_key="table1.id")
-\tf_rel: Table1 | None = Relationship(back_populates='table2s')''')
-
-
-def test_foreign_key_and_relationship_with_cli():
-    '''
-    testing the case of a foreign key, with the generation
-    of relationships
-    '''
-
-    schema = '''CREATE TABLE nations(
-    id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL
-);
-
-CREATE TABLE athletes(
-    id BIGSERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    nation_id BIGSERIAL,
-    FOREIGN KEY (nation_id) REFERENCES nations(id)
-);'''
-
-    #writing schema to temporary directory
-    tmppath = Path(tempdir) / "schema_kf.sql"
-    tmppath.write_text(schema)
-
-    code = launch_cli_in_tmpfile(['-f', str(tmppath), '-r'])
-
-    assert collect_code_info(code) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship
-
-class Nations(SQLModel, table = True):
-\t__tablename__ = 'nations'
-
-\tid: int | None = Field(primary_key=True)
-\tname: str
-\tathletess: list['Athletes'] = Relationship(back_populates='nation')
-                                                                             
-class Athletes(SQLModel, table = True):
-\t__tablename__ = 'athletes'
-
-\tid: int | None = Field(primary_key=True)
-\tname: str
-\tnation_id: int | None = Field(foreign_key="nations.id")
-\tnation: Nations | None = Relationship(back_populates='athletess')''')
+\tf_rel: Table1 | None = Relationship(back_populates='table2s')""")
