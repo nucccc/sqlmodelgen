@@ -1,24 +1,15 @@
-'''
+"""
 this test module shall verify that code generation from direct connection
 with postgres works
-'''
-
-import psycopg
-import docker
-
-from sqlmodelgen import gen_code_from_postgres
+"""
 
 from helpers.helpers import collect_code_info
-from helpers.postgres_container import postgres_container
-        
+from helpers.verify_helpers import postgres_verify
+
 
 def test_gen_code():
 
-    with postgres_container() as pgc:
-        with psycopg.connect(pgc.get_conn_string()) as conn:
-            cursor = conn.cursor()
-
-            cursor.execute('''CREATE TABLE users(
+    sql = '''CREATE TABLE users(
     id uuid NOT NULL,
     PRIMARY KEY (id),
     email TEXT NOT NULL UNIQUE,
@@ -67,12 +58,11 @@ CREATE TABLE athletes(
     weight INTEGER,
     bio TEXT,
     nickname TEXT
-);''')
-            conn.commit()
+);'''
 
-        code_generated = gen_code_from_postgres(pgc.get_conn_string(), generate_relationships=True)
+    code_generated = postgres_verify(sql, rels=True)
 
-        assert collect_code_info(code_generated) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship, UniqueConstraint
+    assert collect_code_info(code_generated) == collect_code_info('''from sqlmodel import SQLModel, Field, Relationship, UniqueConstraint
 from uuid import UUID, uuid4
 from datetime import datetime
 from datetime import date
