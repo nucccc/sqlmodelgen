@@ -114,11 +114,11 @@ def postgres_verify(sql: str, rels: bool, schema_name: str = "public") -> str:
             short_arg=False,
         )
 
-        # verifying all code matches
-        assert func_code == short_arg_cli_code
-        assert func_code == long_arg_cli_code
+    # verifying all code matches
+    assert func_code == short_arg_cli_code
+    assert func_code == long_arg_cli_code
 
-        return func_code
+    return func_code
 
 
 def _postres_cli(
@@ -158,9 +158,45 @@ def mysql_verify(sql: str, rels: bool, dbname: str = "testdb") -> str:
         func_code = gen_code_from_mysql(conn, dbname)
 
         # TODO: get the connection string to invoke the cli
-        conn_string = f"mysql://{user}:{psw}@{host}:{port}"
+        conn_string = conn_data.conn_str
+
+        short_arg_cli_code = _postres_cli(
+            conn_string=conn_data.conn_str,
+            rels=rels,
+            dbname=dbname,
+            short_arg=True,
+        )
+
+        long_arg_cli_code = _postres_cli(
+            conn_string=conn_data.conn_str,
+            rels=rels,
+            dbname=dbname,
+            short_arg=False,
+        )
+
+    # verifying all code matches
+    assert func_code == short_arg_cli_code
+    assert func_code == long_arg_cli_code
 
     return func_code
+
+
+def _mysql_cli(
+    conn_string: str, rels: bool, dbname: str, short_arg: bool = False
+) -> str:
+
+    args = [
+        "-m" if short_arg else "--mysql",
+        conn_string,
+    ]
+
+    if rels:
+        args.append("-r")
+
+    args.append("--dbname")
+    args.append(dbname)
+
+    return launch_cli_in_tmpfile(args=args)
 
 
 def verify(codegen: CodeGenFunc, sql: str, expected: str, rels: bool):
