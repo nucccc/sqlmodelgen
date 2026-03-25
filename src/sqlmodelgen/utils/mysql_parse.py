@@ -23,11 +23,16 @@ def parse_mysql(uri: str):
     port = parsed.port
 
     splauth = auth.split(':')
+    # TODO: evaluate a case of no auth schema? At lease check
+    # if that's conceived
     if len(splauth) > 2:
         raise ValueError('invalid auth scheme')
     user = splauth[0]
     psw = splauth[1] if len(splauth) == 2 else None
 
     return MySQLURInfo(
-        us
+        user=user,
+        psw=psw,
+        host=host,
+        port=port,
     )
