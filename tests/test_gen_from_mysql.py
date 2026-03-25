@@ -9,7 +9,7 @@ from helpers.mysql_container import mysql_docker
 
 
 def test_mysql():
-    with mysql_docker() as (mysqld, conn):
+    with mysql_docker() as (mysqld, conn, conn_data):
         cur = conn.cursor()
 
         sqls = ['''CREATE TABLE IF NOT EXISTS Hero (
@@ -60,7 +60,7 @@ class Persons(SQLModel, table=True):
 
 
 def test_mysql_fk_rel():
-    with mysql_docker() as (mysqld, conn):
+    with mysql_docker() as (mysqld, conn, conn_data):
         cur = conn.cursor()
 
         sqls = ['''CREATE TABLE nations(
