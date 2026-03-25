@@ -141,7 +141,7 @@ def _postres_cli(
 
 
 def mysql_verify(sql: str, rels: bool, dbname: str = "testdb") -> str:
-    with mysql_docker() as (mysqld, conn):
+    with mysql_docker() as (mysqld, conn, conn_data):
         cur = conn.cursor()
 
         sqls = [sql]
@@ -158,6 +158,7 @@ def mysql_verify(sql: str, rels: bool, dbname: str = "testdb") -> str:
         func_code = gen_code_from_mysql(conn, dbname)
 
         # TODO: get the connection string to invoke the cli
+        conn_string = f"mysql://{user}:{psw}@{host}:{port}"
 
     return func_code
 

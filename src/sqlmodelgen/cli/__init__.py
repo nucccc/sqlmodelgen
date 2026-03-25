@@ -68,6 +68,7 @@ def _act_on_args(args: argparse.Namespace, usage: str):
         try:
             mysql_info = parse_mysql(args.mysql)
         except Exception as e:
+            # TODO: possibly characterize the error a little better
             _exit(str(e))
 
         with connector.connect(
