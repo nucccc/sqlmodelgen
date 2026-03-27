@@ -1,8 +1,8 @@
-"""
+'''
 wouldn't it be nice if I could have something that
 veries the same SQL code -> SQLModel code consequence
 across all implementations? let's try
-"""
+'''
 
 from helpers.verify_helpers import (
     parse_verify,
