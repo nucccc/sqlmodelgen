@@ -24,10 +24,13 @@ from helpers.helpers import collect_code_info
 from helpers.mysql_container import mysql_docker
 from helpers.postgres_container import postgres_container
 
-CodeGenFunc = Callable[[str, bool], str]
+CodeGenFunc = Callable[[str | list[str], bool], str]
 
 
-def parse_verify(sql: str, rels: bool) -> str:
+def parse_verify(sql: str | list[str], rels: bool) -> str:
+    if isinstance(sql, list):
+        sql = '\n\n'.join(sql)
+
     # preparinf the temp file for the cli
     fpath = Path(tempdir) / f"{uuid4()}.sql"
     fpath.write_text(sql)
@@ -54,14 +57,18 @@ def _parse_cli(fpath: Path, rels: bool, short_arg: bool = False) -> str:
     return launch_cli_in_tmpfile(args=args)
 
 
-def sqlite_verify(sql: str, rels: bool) -> str:
+def sqlite_verify(sql: str | list[str], rels: bool) -> str:
     # TODO: prepare interface for possibly several sql
     # statements
     sqlite_path = Path(tempdir) / f"{uuid4()}.sqlite"
 
     with sqlite3.connect(sqlite_path) as conn:
         cursor = conn.cursor()
-        cursor.execute(sql)
+        if isinstance(sql, str):
+            cursor.execute(sql)
+        elif isinstance(sql, list):
+            for statement in sql:
+                cursor.execute(statement)
         conn.commit()
 
     func_code = gen_code_from_sqlite(str(sqlite_path), rels)
@@ -86,11 +93,15 @@ def _sqlite_cli(sqlite_path: Path, rels: bool, short_arg: bool = False) -> str:
     return launch_cli_in_tmpfile(args=args)
 
 
-def postgres_verify(sql: str, rels: bool, schema_name: str = "public") -> str:
+def postgres_verify(sql: str | list[str], rels: bool, schema_name: str = "public") -> str:
     with postgres_container() as pgc:
         with psycopg.connect(pgc.get_conn_string()) as conn:
             cursor = conn.cursor()
-            cursor.execute(sql)
+            if isinstance(sql, str):
+                cursor.execute(sql)
+            elif isinstance(sql, list):
+                for statement in sql:
+                    cursor.execute(statement)
             conn.commit()
 
         # generating code from function
@@ -140,11 +151,11 @@ def _postres_cli(
     return launch_cli_in_tmpfile(args=args)
 
 
-def mysql_verify(sql: str, rels: bool, dbname: str = "testdb") -> str:
+def mysql_verify(sql: str | list[str], rels: bool, dbname: str = "testdb") -> str:
     with mysql_docker() as (mysqld, conn, conn_data):
         cur = conn.cursor()
 
-        sqls = [sql]
+        sqls = [sql] if isinstance(sql, str) else sql
 
         cur.execute(f"CREATE DATABASE IF NOT EXISTS {dbname}")
 
@@ -160,14 +171,14 @@ def mysql_verify(sql: str, rels: bool, dbname: str = "testdb") -> str:
         # TODO: get the connection string to invoke the cli
         conn_string = conn_data.conn_str
 
-        short_arg_cli_code = _postres_cli(
+        short_arg_cli_code = _mysql_cli(
             conn_string=conn_data.conn_str,
             rels=rels,
             dbname=dbname,
             short_arg=True,
         )
 
-        long_arg_cli_code = _postres_cli(
+        long_arg_cli_code = _mysql_cli(
             conn_string=conn_data.conn_str,
             rels=rels,
             dbname=dbname,

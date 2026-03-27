@@ -6,13 +6,12 @@ from sqlmodelgen import gen_code_from_mysql
 
 from helpers.helpers import collect_code_info
 from helpers.mysql_container import mysql_docker
+from helpers.verify_helpers import mysql_verify
 
 
 def test_mysql():
-    with mysql_docker() as (mysqld, conn, conn_data):
-        cur = conn.cursor()
-
-        sqls = ['''CREATE TABLE IF NOT EXISTS Hero (
+    generated_code = mysql_verify(
+        sql=['''CREATE TABLE IF NOT EXISTS Hero (
             id INT, 
             name VARCHAR(255), 
             secret_name VARCHAR(255) UNIQUE, 
@@ -24,22 +23,12 @@ def test_mysql():
             FirstName varchar(255),
             Age int,
             PRIMARY KEY (ID)
-        );''']
+        );'''],
+        rels=False,
+        dbname='nucdb',
+    )
 
-        cur.execute('CREATE DATABASE IF NOT EXISTS nucdb')
-
-        cur.execute('USE nucdb')
-
-        for sql in sqls:
-            cur.execute(sql)
-
-        conn.commit()
-
-        code = gen_code_from_mysql(conn, 'nucdb')
-
-        print(code)
-
-        expected_code ='''from sqlmodel import SQLModel, Field, UniqueConstraint
+    expected_code ='''from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class Hero(SQLModel, table=True):
     __tablename__ = 'Hero'
@@ -56,10 +45,30 @@ class Persons(SQLModel, table=True):
     FirstName: str | None
     Age: int | None'''
         
-        assert collect_code_info(code) == collect_code_info(expected_code)
+    assert collect_code_info(generated_code) == collect_code_info(expected_code)
 
 
 def test_mysql_fk_rel():
+    generated_code = mysql_verify(
+        sql=['''CREATE TABLE nations(
+            id INT PRIMARY KEY,
+            name TEXT NOT NULL
+        );''',
+        '''CREATE TABLE athletes(
+            id INT PRIMARY KEY,
+            name TEXT NOT NULL,
+            nation_id INT,
+            FOREIGN KEY (nation_id) REFERENCES nations(id),
+            height INTEGER,
+            weight INTEGER,
+            bio TEXT,
+            nickname TEXT
+        );'''],
+        rels=False,
+        dbname='nucdb',
+    )
+
+    """
     with mysql_docker() as (mysqld, conn, conn_data):
         cur = conn.cursor()
 
@@ -90,8 +99,9 @@ def test_mysql_fk_rel():
         code = gen_code_from_mysql(conn, 'nucdb')
 
         print(code)
+    """
 
-        expected_code ='''from sqlmodel import SQLModel, Field
+    expected_code ='''from sqlmodel import SQLModel, Field
 
 class Athletes(SQLModel, table=True):
     __tablename__ = 'athletes'
@@ -108,4 +118,4 @@ class Nations(SQLModel, table=True):
     id: int = Field(primary_key=True)
     name: str'''
         
-        assert collect_code_info(code) == collect_code_info(expected_code)
+    assert collect_code_info(generated_code) == collect_code_info(expected_code)
