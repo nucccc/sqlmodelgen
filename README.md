@@ -131,6 +131,37 @@ class Athletes(SQLModel, table = True):
     nation: Nations | None = Relationship(back_populates='athletess')
 ```
 
+### CLI usage
+
+CLI usage is supported, for example one can invokem with:
+
+```bash
+python3 -m sqlmodelgen -f /my/path/to/file.sql -o /my/path/to/output.py
+```
+
+help description for input arguments:
+
+```
+usage: sqlmodelgen [-h] (-f FILE | -s SQLITE | -p POSTGRES | -m MYSQL) [-o OUTPUT] [-r] [--schema SCHEMA]
+                   [--dbname DBNAME]
+
+sqlmodel classes code generation
+
+options:
+  -h, --help            show this help message and exit
+  -f, --file FILE       SQL file path
+  -s, --sqlite SQLITE   SQLite database path
+  -p, --postgres POSTGRES
+                        PostgreSQL connection URL, requires postgres extension to be installed with "pip install
+                        sqlmodelgen[postgres]"
+  -m, --mysql MYSQL     MySQL connection URL, requires mysql extension to be installed with "pip install
+                        sqlmodelgen[mysql]"
+  -o, --output OUTPUT   Output file (default: stdout)
+  -r, --relationships   Generate relationships
+  --schema SCHEMA       PostgreSQL schema (default: public)
+  --dbname DBNAME       MySQL database name (required with --mysql)
+```
+
 ## Internal functioning
 
 The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly
