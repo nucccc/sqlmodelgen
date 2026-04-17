@@ -1,12 +1,13 @@
 [project]
 name = "sqlmodelgen"
-version = "0.0.18"
+version = "0.0.19"
 description = "Generate SQLModel code from SQL"
 license = {file = "LICENSE"}
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "sqloxide>=0.1.56",
+    "urllib3>=2.4.0",
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
