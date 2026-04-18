@@ -4,7 +4,7 @@
 import psycopg
 
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Generator, Iterator
 
 from sqlmodelgen.ir.ir import (
 	ColIR,
@@ -12,6 +12,14 @@ from sqlmodelgen.ir.ir import (
 	SchemaIR,
 	FKIR
 )
+
+
+SCHEMAS_TO_AVOID = {
+    'pg_toast',
+	'pg_catalog',
+	'information_schema',
+}
+
 
 @dataclass
 class ContraintsData:
@@ -34,11 +42,27 @@ class ContraintsData:
         return table_fks.get(column_name)
 
 
-def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') -> SchemaIR:    
+def collect_postgres_ir(postgres_conn_addr: str, schema_name: str | None = None) -> Generator[SchemaIR, None, None]:
 
     conn = psycopg.connect(postgres_conn_addr)
     cursor = conn.cursor()
 
+    # obtaining the schemas in the database
+    cursor.execute('SELECT nspname FROM pg_catalog.pg_namespace')
+    schema_names = [schema_name for schema_name in cursor.fetchall() if schema_name not in SCHEMAS_TO_AVOID]
+
+    for schema_name in schema_names:
+        yield collect_schema_ir(cursor, schema_name)
+
+    # TODO: potentially collect contraints regarding foreign keys
+
+    conn.close()
+
+
+def collect_schema_ir(
+    cursor: psycopg.Cursor,
+    schema_name: str,
+) -> SchemaIR:
     constraints = collect_contraints(cursor, schema_name)
     
     cursor.execute('SELECT * FROM pg_catalog.pg_tables WHERE schemaname=%s', (schema_name, ))
@@ -58,12 +82,9 @@ def collect_postgres_ir(postgres_conn_addr: str, schema_name: str = 'public') ->
             ))
         ))
 
-    # TODO: potentially collect contraints regarding foreign keys
-
-    conn.close()
-
     return SchemaIR(
-        table_irs=table_irs
+        schema_name=schema_name,
+        table_irs=table_irs,
     )
 
 

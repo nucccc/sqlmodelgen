@@ -39,6 +39,7 @@ class TableIR:
 
 @dataclass
 class SchemaIR:
+	schema_name: str | None = None
 	table_irs: list[TableIR]
 
 	def get_table_ir(self, name: str) -> TableIR | None:
