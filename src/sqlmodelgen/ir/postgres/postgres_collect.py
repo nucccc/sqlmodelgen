@@ -49,7 +49,7 @@ def collect_postgres_ir(postgres_conn_addr: str, schema_name: str | None = None)
 
     # obtaining the schemas in the database
     cursor.execute('SELECT nspname FROM pg_catalog.pg_namespace')
-    schema_names = [schema_name for schema_name in cursor.fetchall() if schema_name not in SCHEMAS_TO_AVOID]
+    schema_names = [schema_row[0] for schema_row in cursor.fetchall() if schema_row[0] not in SCHEMAS_TO_AVOID]
 
     for schema_name in schema_names:
         yield collect_schema_ir(cursor, schema_name)

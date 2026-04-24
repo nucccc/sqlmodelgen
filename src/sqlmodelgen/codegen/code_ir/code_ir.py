@@ -43,7 +43,18 @@ class UniqueTableArgIR():
             args=[ast.Constant(col_name) for col_name in self._col_names],
             keywords=[]
         )
+    
 
+class SchemaNameArgIR():
+
+    def __init__(self, schema_name: str):
+        self._schema_name = schema_name
+
+    def to_expr(self)-> ast.Dict:
+        return ast.Dict(
+            keys=[ast.Constant(value='schema')],
+            values=[ast.Constant(value=self._schema_name)],
+        )
 
 
 @dataclass

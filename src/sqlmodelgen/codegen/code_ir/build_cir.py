@@ -2,7 +2,7 @@ from typing import Callable
 from sqlmodelgen.codegen.code_ir.code_ir import ModelIR
 from sqlmodelgen.codegen.code_ir.build_rels import add_relationships_attrs
 from sqlmodelgen.codegen.code_ir.build_col_attrs import attribute_from_col
-from sqlmodelgen.codegen.code_ir.build_table_args import build_unique_constraints
+from sqlmodelgen.codegen.code_ir.build_table_args import build_table_args
 from sqlmodelgen.ir.ir import SchemaIR, TableIR
 
 def build_model_irs(schema_ir: SchemaIR, gen_relationships: bool, table_name_transform: Callable[[str], str] | None = None, column_name_transform: Callable[[str], str] | None = None) -> list[ModelIR]:
@@ -10,7 +10,13 @@ def build_model_irs(schema_ir: SchemaIR, gen_relationships: bool, table_name_tra
     models_by_table_name: dict[str, ModelIR] = dict()
 
     for table_ir in schema_ir.table_irs:
-        model_ir = build_model_ir(table_ir=table_ir, class_names=class_names, table_name_transform=table_name_transform, column_name_transform=column_name_transform)
+        model_ir = build_model_ir(
+            table_ir=table_ir,
+            class_names=class_names,
+            table_name_transform=table_name_transform,
+            column_name_transform=column_name_transform,
+            schema_name=schema_ir.schema_name,
+        )
 
         models_by_table_name[model_ir.table_name] = model_ir
 
@@ -33,10 +39,16 @@ def gen_class_name(table_name: str, class_names: set[str], table_name_transform:
 
 
 
-def build_model_ir(table_ir: TableIR, class_names: set[str], table_name_transform: Callable[[str], str] | None = None, column_name_transform: Callable[[str], str] | None = None) -> ModelIR:
+def build_model_ir(
+    table_ir: TableIR,
+    class_names: set[str],
+    table_name_transform: Callable[[str], str] | None = None,
+    column_name_transform: Callable[[str], str] | None = None,
+    schema_name: str | None = None,
+) -> ModelIR:
     return ModelIR(
         class_name=gen_class_name(table_ir.name, class_names, table_name_transform),
         table_name=table_ir.name,
         attrs=[attribute_from_col(col_ir, column_name_transform) for col_ir in table_ir.col_irs],
-        table_args=list(build_unique_constraints(table_ir)),
+        table_args=list(build_table_args(table_ir, schema_name)),
     )

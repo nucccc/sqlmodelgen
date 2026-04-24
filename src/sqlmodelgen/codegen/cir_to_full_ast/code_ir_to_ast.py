@@ -1,7 +1,7 @@
 import ast
 from typing import Iterable
 
-from sqlmodelgen.codegen.code_ir.code_ir import AttributeIR, AttrCallIR, ModelIR
+from sqlmodelgen.codegen.code_ir.code_ir import AttributeIR, AttrCallIR, ModelIR, SchemaNameArgIR
 from sqlmodelgen.codegen.cir_to_full_ast.to_ast_imports import gen_imports
 
 
@@ -57,13 +57,21 @@ def gen_table_args(model_ir: ModelIR) -> ast.Assign | None:
     if len(model_ir.table_args) == 0:
         return None
     
+    # I shall build the value
+
+    # first case is if there's only one table argument and it's the schema name
+    if len(model_ir.table_args) == 1 and isinstance(model_ir.table_args[0], SchemaNameArgIR):
+        value = model_ir.table_args[0].to_expr()
+    # otherwise just make a tuple of the args
+    else:
+        value = ast.Tuple(
+            elts=[table_arg.to_expr() for table_arg in model_ir.table_args]
+        )
     # at this level we gust generate the unique constraint
     
     return ast.Assign(
         targets=[ast.Name('__table_args__')],
-        value=ast.Tuple(
-            elts=[table_arg.to_expr() for table_arg in model_ir.table_args]
-        )
+        value=value,
     )
 
 
