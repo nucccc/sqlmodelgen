@@ -93,7 +93,7 @@ class ColumnAstInfo:
 class ClassAstInfo:
     class_name: str
     table_name: str | None
-    uniques: set[tuple[str]]
+    uniques: set[tuple[str, ...]]
     cols_info: dict[str, ColumnAstInfo]
 
 
@@ -149,7 +149,7 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
 
     class_name = class_def.name
     table_name: str | None = None
-    uniques: list[tuple[str]] = list()
+    uniques: set[tuple[str]] = set()
     cols_info: dict[str, ColumnAstInfo] = dict()
     
     for stat in class_def.body:
