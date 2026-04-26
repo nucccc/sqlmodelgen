@@ -41,7 +41,7 @@ class UniqueTableArgIR():
         return ast.Call(
             func=ast.Name('UniqueConstraint'),
             args=[ast.Constant(col_name) for col_name in self._col_names],
-            keywords=[]
+            keywords=[],
         )
     
 
