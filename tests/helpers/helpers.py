@@ -95,6 +95,7 @@ class ClassAstInfo:
     table_name: str | None
     uniques: set[tuple[str, ...]]
     cols_info: dict[str, ColumnAstInfo]
+    schema_name_arg: str | None = None
 
 
 @dataclass
@@ -150,6 +151,7 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
     class_name = class_def.name
     table_name: str | None = None
     uniques: set[tuple[str]] = set()
+    schema_name: str | None = None
     cols_info: dict[str, ColumnAstInfo] = dict()
     
     for stat in class_def.body:
@@ -170,6 +172,7 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
                 table_name = collect_table_name(stat)
             elif var_name == '__table_args__':
                 uniques = collect_uniques(stat.value)
+                schema_name = collect_schema_name_table_arg(stat.value)
 
         elif type(stat) is ast.AnnAssign:
             col_info = collect_col_info(stat)
@@ -179,7 +182,8 @@ def collect_sqlmodel_class(class_def: ast.ClassDef) -> ClassAstInfo | None:
         class_name=class_name,
         table_name=table_name,
         uniques=uniques,
-        cols_info=cols_info
+        cols_info=cols_info,
+        schema_name_arg=schema_name,
     )
 
 
@@ -257,6 +261,37 @@ def collect_uniques(table_args: ast.expr) -> set[tuple[str]]:
                 uniques.add(tuple(arg.value for arg in elt.args if isinstance(arg, ast.Constant)))
 
     return uniques
+
+
+def collect_schema_name_table_arg(table_args: ast.AST) -> str | None:
+    schema_arg: ast.AST | None = None
+
+    # TODO: this shall support the parsing of all the possible
+    # types of values __table_args__ could possess, I remember
+    # also a dictionary being possible and maybe something else
+    # other than a tuple
+    if isinstance(table_args, ast.Tuple):
+        for elt in table_args.elts:
+            # looking for the dictionary with the table args
+            if not isinstance(elt, ast.Dict):
+                continue
+            for key, val in zip(elt.keys, elt.values):
+                if not isinstance(key, ast.Constant):
+                    continue
+                if key.value == 'schema':
+                    schema_arg = val
+                    break
+    elif isinstance(table_args, ast.Dict):
+        for key, val in zip(table_args.keys, table_args.values):
+            if not isinstance(key, ast.Constant):
+                continue
+            if key.value == 'schema':
+                schema_arg = val
+                break
+
+    schema_name = schema_arg.value if isinstance(schema_arg, ast.Constant) else None
+
+    return schema_name
 
 
 def is_valid_sqlmodel_class(class_def: ast.ClassDef) -> bool:

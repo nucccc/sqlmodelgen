@@ -9,6 +9,7 @@ import ast
 from helpers.helpers import (
     type_data_from_ast_annassign,
     collect_code_info,
+    collect_schema_name_table_arg,
     ModuleAstInfo,
     ClassAstInfo,
     ColumnAstInfo,
@@ -41,7 +42,10 @@ from sqlmodel import SQLModel, Field, UniqueConstraint
 
 class a_table(SQLModel, table = True):
     __tablename__ = 'a_table'
-    __table_args__ = (UniqueConstraint('name'), )
+    __table_args__ = (
+        UniqueConstraint('name'),
+        {'schema':'a_schema'},
+    )
     id: int | None = Field(primary_key=True)
     name: str
     email: str | None''')
@@ -81,7 +85,12 @@ class a_table(SQLModel, table = True):
                             optional=True
                         )
                     ),
-                }
+                },
+                schema_name_arg='a_schema',
             )
         }
     )
+
+def test_collect_schema_name_table_arg():
+    expr = ast.parse('{\'schema\' : \'another_schema\'}', mode='eval')
+    assert collect_schema_name_table_arg(expr.body) == 'another_schema'
