@@ -94,3 +94,12 @@ class a_table(SQLModel, table = True):
 def test_collect_schema_name_table_arg():
     expr = ast.parse('{\'schema\' : \'another_schema\'}', mode='eval')
     assert collect_schema_name_table_arg(expr.body) == 'another_schema'
+
+    expr = ast.parse('(\'schema\', \'another_schema\')', mode='eval')
+    assert collect_schema_name_table_arg(expr.body) is None
+
+    expr = ast.parse('2 + 2', mode='eval')
+    assert collect_schema_name_table_arg(expr.body) is None
+
+    expr = ast.parse('2 + 2', mode='eval')
+    assert collect_schema_name_table_arg(expr.body) is None
