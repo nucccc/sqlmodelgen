@@ -4,10 +4,13 @@ from sqlmodelgen.codegen.code_ir.code_ir import UniqueTableArgIR, SchemaNameArgI
 from sqlmodelgen.ir.ir import TableIR
 
 def build_table_args(table_ir: TableIR, schema_name: str | None) -> Iterator[UniqueTableArgIR]:
+    yield from build_unique_constraints(table_ir)
     
+    # yield the schema name at last in order to be consistent
+    # with the sqlalchemy requirement of having the schema
+    # dictionary at last
     if schema_name is not None and schema_name != 'public':
         yield SchemaNameArgIR(schema_name=schema_name)
-    yield from build_unique_constraints(table_ir)
     
 
 
