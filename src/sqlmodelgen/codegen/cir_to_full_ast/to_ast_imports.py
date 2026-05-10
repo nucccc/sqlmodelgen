@@ -7,8 +7,10 @@ import ast
 from itertools import chain
 from typing import Iterable, Iterator
 
+# type union for generic import ast node
 AST_IMPORT_TYPE = ast.Import | ast.ImportFrom
 
+# imports for every specific type
 TYPE_IMPORTS = {
     'datetime': ast.ImportFrom(
         module='datetime',
@@ -33,6 +35,9 @@ TYPE_IMPORTS = {
 }
 
 def gen_imports(cdefs: Iterable[ast.ClassDef]) -> Iterator[AST_IMPORT_TYPE]:
+    '''
+    generates import statements from the class nodes
+    '''
     data_types_names = set(chain(*map(_iter_data_type_names, cdefs)))
 
     call_names = set(chain(*map(_iter_call_names, cdefs)))
@@ -46,6 +51,10 @@ def gen_imports(cdefs: Iterable[ast.ClassDef]) -> Iterator[AST_IMPORT_TYPE]:
 
 
 def gen_sqlmodel_import(call_names: set[str]) -> ast.ImportFrom:
+    '''
+    based on the collected calls this function returns an est elements
+    with the imports necessary from the sqlmodel library
+    '''
     sqlmodel_import = ast.ImportFrom(
         module='sqlmodel',
         names=[
@@ -53,16 +62,15 @@ def gen_sqlmodel_import(call_names: set[str]) -> ast.ImportFrom:
         ]
     )
 
+    # checking the call names for specific imports
     if 'Field' in call_names:
         sqlmodel_import.names.append(
             ast.alias('Field')
         )
-
     if 'Relationship' in call_names:
         sqlmodel_import.names.append(
             ast.alias('Relationship')
         )
-
     if 'UniqueConstraint' in call_names:
         sqlmodel_import.names.append(
             ast.alias('UniqueConstraint')
