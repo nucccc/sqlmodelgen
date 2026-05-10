@@ -59,11 +59,17 @@ def gen_table_args(model_ir: ModelIR) -> ast.Assign | None:
     
     # I shall build the value
 
-    # first case is if there's only one table argument and it's the schema name
+    # first case is if there's only one table argument and it's the
+    # schema name, then let's just have its dictionary as the __table_args__
     if len(model_ir.table_args) == 1 and isinstance(model_ir.table_args[0], SchemaNameArgIR):
         value = model_ir.table_args[0].to_expr()
     # otherwise just make a tuple of the args
     else:
+        # NOTE: sqlalchemy requires the dictionary to be placed at
+        # last
+        # TODO: enforce the sqlalchemy dictionary (at the moment no mergings
+        # needed, only schema attribute is present) to be at the last
+        # position
         value = ast.Tuple(
             elts=[table_arg.to_expr() for table_arg in model_ir.table_args]
         )
