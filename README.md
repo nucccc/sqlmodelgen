@@ -6,27 +6,27 @@
 |---------------------------------------------------------------- | -------: | -------: | ------: | --------: |
 | src/sqlmodelgen/\_\_init\_\_.py                                 |        6 |        0 |    100% |           |
 | src/sqlmodelgen/cli/\_\_init\_\_.py                             |       54 |        6 |     89% |58, 64, 70-72, 87, 93 |
-| src/sqlmodelgen/codegen/cir\_to\_full\_ast/code\_ir\_to\_ast.py |       27 |        0 |    100% |           |
+| src/sqlmodelgen/codegen/cir\_to\_full\_ast/code\_ir\_to\_ast.py |       30 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/cir\_to\_full\_ast/to\_ast\_imports.py  |       36 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_cir.py                  |       23 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_col\_attrs.py           |       31 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_common.py               |        3 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_rels.py                 |       55 |        0 |    100% |           |
-| src/sqlmodelgen/codegen/code\_ir/build\_table\_args.py          |        5 |        0 |    100% |           |
-| src/sqlmodelgen/codegen/code\_ir/code\_ir.py                    |       41 |        1 |     98% |        32 |
-| src/sqlmodelgen/codegen/codegen.py                              |        9 |        0 |    100% |           |
+| src/sqlmodelgen/codegen/code\_ir/build\_table\_args.py          |        9 |        0 |    100% |           |
+| src/sqlmodelgen/codegen/code\_ir/code\_ir.py                    |       46 |        1 |     98% |        32 |
+| src/sqlmodelgen/codegen/codegen.py                              |       15 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/convert\_data\_type.py                  |       28 |        0 |    100% |           |
-| src/sqlmodelgen/ir/ir.py                                        |       24 |        6 |     75% | 37, 49-53 |
+| src/sqlmodelgen/ir/ir.py                                        |       25 |        6 |     76% | 37, 50-54 |
 | src/sqlmodelgen/ir/mysql/\_\_init\_\_.py                        |       59 |        0 |    100% |           |
 | src/sqlmodelgen/ir/parse/ir\_parse.py                           |       61 |        2 |     97% |   60, 124 |
 | src/sqlmodelgen/ir/parse/org\_parse.py                          |       40 |        0 |    100% |           |
-| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       62 |        0 |    100% |           |
+| src/sqlmodelgen/ir/postgres/postgres\_collect.py                |       68 |        0 |    100% |           |
 | src/sqlmodelgen/ir/query/\_\_init\_\_.py                        |       35 |        3 |     91% |43, 46, 49 |
 | src/sqlmodelgen/ir/sqlite/sqlite\_parse.py                      |       43 |        0 |    100% |           |
 | src/sqlmodelgen/sqlmodelgen.py                                  |       18 |        0 |    100% |           |
 | src/sqlmodelgen/utils/dependency\_checker.py                    |       12 |        4 |     67% |4-5, 12-13 |
 | src/sqlmodelgen/utils/mysql\_parse.py                           |       17 |        2 |     88% |    19, 29 |
-| **TOTAL**                                                       |  **689** |   **24** | **97%** |           |
+| **TOTAL**                                                       |  **714** |   **24** | **97%** |           |
 
 
 ## Setup coverage badge
