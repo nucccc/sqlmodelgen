@@ -91,6 +91,61 @@ class a_table(SQLModel, table = True):
         }
     )
 
+def test_collect_schema_info():
+    '''
+    this test shall assert that the schema name is
+    collected successfully if present in different types of table args
+    '''
+
+    # declaring code with several SQLModel classes, all with
+    # different or non existing __table_args__
+    table_arg_only_schema_info = collect_code_info('''
+class a_table(SQLModel, table = True):
+    __tablename__ = 'a_table'
+    __table_args__ = {'schema':'a_schema'}
+    id: int | None = Field(primary_key=True)
+    name: str
+
+class b_table(SQLModel, table = True):
+    __tablename__ = 'b_table'
+    __table_args__ = ({'schema':'b_schema'},)
+    id: int | None = Field(primary_key=True)
+    name: str
+
+class c_table(SQLModel, table = True):
+    __tablename__ = 'c_table'
+    __table_args__ = (UniqueConstraint('name'),{'schema':'c_schema'},)
+    id: int | None = Field(primary_key=True)
+    name: str
+
+class d_table(SQLModel, table = True):
+    __tablename__ = 'd_table'
+    __table_args__ = (UniqueConstraint('name'),)
+    id: int | None = Field(primary_key=True)
+    name: str
+
+class e_table(SQLModel, table = True):
+    __tablename__ = 'e_table'
+    id: int | None = Field(primary_key=True)
+    name: str
+''')
+
+    # out of the collected code info a dictionary associating
+    # to every table name is built
+    schema_names_dict = {
+        class_name : class_info.schema_name_arg
+        for class_name, class_info in table_arg_only_schema_info.classes_info.items()
+    }
+
+    assert schema_names_dict == {
+        'a_table':'a_schema',
+        'b_table':'b_schema',
+        'c_table':'c_schema',
+        'd_table':None,
+        'e_table':None,
+    }
+
+
 def test_collect_schema_name_table_arg():
     expr = ast.parse('{\'schema\' : \'another_schema\'}', mode='eval')
     assert collect_schema_name_table_arg(expr.body) == 'another_schema'
