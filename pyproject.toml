@@ -1,6 +1,9 @@
 [project]
 name = "sqlmodelgen"
-version = "0.0.19"
+authors = [
+  {name = "Domenico Nucera"}
+]
+version = "0.0.20"
 description = "Generate SQLModel code from SQL"
 license = {file = "LICENSE"}
 readme = "README.md"
