@@ -4,17 +4,19 @@ from contextlib import contextmanager
 
 import docker
 import psycopg
+import uuid
 
 class PostgresContainer:
 
     def __init__(self):
         self.client = docker.from_env()
         self.image = 'postgres:16'
-        self.host_port = 8111#self._find_free_port()
+        # self.host_port = 8111#self._find_free_port()
+        self.host_port = self._find_free_port()
         self.container_port = 5432
         self.username = 'tester'
         self.password = 'password'
-        self.database = 'test'
+        self.database = f'test_{uuid.uuid4()}'
         self.container = None
 
     
