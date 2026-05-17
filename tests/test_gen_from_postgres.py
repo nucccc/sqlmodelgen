@@ -123,3 +123,54 @@ class Athletes(SQLModel, table=True):
     bio: str | None
     nickname: str | None
     nation: 'Nations' | None = Relationship(back_populates='athletess')''')
+
+
+def test_postgres_schema_varying_uniques():
+    '''
+    the purpose of this test is to verify that a postgres database
+    with a schema and tables with and without uniques is correctly
+    processed
+    '''
+
+    sql = '''CREATE SCHEMA IF NOT EXISTS user_data;
+    
+CREATE TABLE user_data.users(
+    id uuid NOT NULL,
+    PRIMARY KEY (id),
+    email TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL UNIQUE,
+    psw TEXT NOT NULL
+);
+
+CREATE TABLE user_data.stuff(
+    id uuid NOT NULL,
+    PRIMARY KEY (id),
+    email TEXT NOT NULL,
+    name TEXT NOT NULL,
+    psw TEXT NOT NULL
+);
+'''
+
+    code_generated = postgres_verify(sql, rels=True)
+
+    assert collect_code_info(code_generated) == collect_code_info('''
+from sqlmodel import SQLModel, Field, UniqueConstraint
+from uuid import UUID, uuid4
+
+class Users(SQLModel, table=True):
+    __tablename__ = 'users'
+    __table_args__ = (UniqueConstraint('email'), UniqueConstraint('name'), {'schema': 'user_data'})
+    id: UUID = Field(primary_key=True, default_factory=uuid4)
+    email: str
+    name: str
+    psw: str
+
+
+class Stuff(SQLModel, table=True):
+    __tablename__ = 'stuff'
+    __table_args__ = {'schema': 'user_data'}
+    id: UUID = Field(primary_key=True, default_factory=uuid4)
+    email: str
+    name: str
+    psw: str
+''')
