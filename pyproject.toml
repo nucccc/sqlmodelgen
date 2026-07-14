@@ -5,7 +5,7 @@ authors = [
 ]
 version = "0.0.20"
 description = "Generate SQLModel code from SQL"
-license = {file = "LICENSE"}
+license-files = ['LICENSE']
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -24,6 +24,9 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14"
 ]
+
+[project.scripts]
+sqlmodelgen = "sqlmodelgen.cli:main_cli"
 
 [project.urls]
 Repository = "https://github.com/nucccc/sqlmodelgen"
