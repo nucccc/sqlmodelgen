@@ -601,7 +601,7 @@ wheels = [
 
 [[package]]
 name = "sqlmodelgen"
-version = "0.0.18"
+version = "0.0.20"
 source = { editable = "." }
 dependencies = [
     { name = "sqloxide" },

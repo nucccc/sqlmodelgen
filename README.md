@@ -136,7 +136,7 @@ class Athletes(SQLModel, table = True):
 CLI usage is supported, for example one can invokem with:
 
 ```bash
-python3 -m sqlmodelgen -f /my/path/to/file.sql -o /my/path/to/output.py
+sqlmodelgen -f /my/path/to/file.sql -o /my/path/to/output.py
 ```
 
 help description for input arguments:
