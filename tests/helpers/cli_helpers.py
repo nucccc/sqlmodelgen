@@ -24,7 +24,7 @@ def launch_cli_in_tmpfile(args: list[str]) -> str:
             # We must not include the header as we use non-deterministic
             # temporary filenames.
             # This makes checking the output strings a little tricky.
-            # So we just ignore the header!
+            # So we just ignore it!
             '--no-header',
             '-o',
             str(tpath),
