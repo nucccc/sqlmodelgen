@@ -15,9 +15,11 @@ It accepts in input the following sources:
 
 Available on PyPi, just run `pip install sqlmodelgen`
 
-Code generation from postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`
+Code generation from Postgres requires the separate `postgres` extension, installable with `pip install sqlmodelgen[postgres]`, while code generation from MySQL requires the separate `mysql` extension, installable with `pip install sqlmodelgen[mysql]`
 
 ## Usage
+
+`sqlmodelgen` can be used both as a command line tool and as a library providing functions that can be invoked in python.
 
 ### Generating from CREATE TABLE
 
@@ -166,4 +168,17 @@ options:
 
 ## Internal functioning
 
-The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly
+The library relies on [sqloxide](https://github.com/wseaton/sqloxide) to parse SQL code, then generates sqlmodel classes accordingly.
+
+## Contributions
+
+The project is small but contributions are really welcome. Feel free to post issues or provide PRs. In general it is preferred to provide PRs as "atomic" as possible, in order to ease reviews.
+
+## Contributors
+
+Some people helped improve the tool in several ways:
+
+- [matthaigh27](https://github.com/matthaigh27) provided functionality for attributes with custom names and the usage of `Any` as a type.
+- [s-weigand](https://github.com/s-weigand) added useful types.
+- [Zer0AlmostNull](https://github.com/Zer0AlmostNull) improved the documentation.
+- [JoaquimEsteves](https://github.com/JoaquimEsteves) set up script in the `pyproject.toml` and added a header for the code generated.
