@@ -5,7 +5,7 @@ of import ast nodes from the generated class definitions
 
 import ast
 from itertools import chain
-from typing import Iterable, Iterator
+from collections.abc import Iterable, Iterator
 
 # type union for generic import ast node
 AST_IMPORT_TYPE = ast.Import | ast.ImportFrom

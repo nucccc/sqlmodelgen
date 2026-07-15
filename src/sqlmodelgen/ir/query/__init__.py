@@ -1,5 +1,6 @@
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
-from typing import Iterable, Iterator, Protocol
+from typing import Protocol
 
 from sqlmodelgen.ir.ir import (
 	ColIR,

@@ -1,5 +1,5 @@
 import ast
-from typing import Iterable
+from collections.abc import Iterable
 
 from sqlmodelgen.codegen.code_ir.code_ir import AttributeIR, AttrCallIR, ModelIR, SchemaNameArgIR
 from sqlmodelgen.codegen.cir_to_full_ast.to_ast_imports import gen_imports

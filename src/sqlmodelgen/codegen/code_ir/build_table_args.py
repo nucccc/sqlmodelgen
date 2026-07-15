@@ -1,4 +1,4 @@
-from typing import Iterator
+from collections.abc import Iterator
 
 from sqlmodelgen.codegen.code_ir.code_ir import UniqueTableArgIR, SchemaNameArgIR
 from sqlmodelgen.ir.ir import TableIR

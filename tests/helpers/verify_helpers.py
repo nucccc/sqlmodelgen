@@ -4,9 +4,9 @@ and the CLI produce the same output for every backend.
 """
 
 import sqlite3
+from collections.abc  import Callable
 from pathlib import Path
 from tempfile import tempdir
-from typing import Callable
 
 import pytest
 import psycopg
