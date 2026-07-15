@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 [project.scripts]
-sqlmodelgen = "sqlmodelgen.cli:main_cli"
+sqlmodelgen = "sqlmodelgen.__main__:main"
 
 [project.urls]
 Repository = "https://github.com/nucccc/sqlmodelgen"
