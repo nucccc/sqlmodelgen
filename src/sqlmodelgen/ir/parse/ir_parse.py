@@ -2,8 +2,8 @@
 this module shall account for obtaining the actual intermediate representation
 '''
 
-
-from typing import Any, Iterator
+from collections.abc import Iterator
+from typing import Any
 
 from sqloxide import parse_sql
 

@@ -1,6 +1,5 @@
 import ast
-
-from typing import Iterator, Iterable
+from collections.abc import Iterator, Iterable
 
 from sqlmodelgen.codegen.code_ir.code_ir import (
     AttributeIR,

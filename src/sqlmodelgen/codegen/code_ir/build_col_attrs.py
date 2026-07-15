@@ -1,5 +1,5 @@
 import ast
-from typing import Callable
+from collections.abc import Callable
 
 from sqlmodelgen.codegen.convert_data_type import convert_data_type
 from sqlmodelgen.codegen.code_ir.code_ir import (

@@ -1,8 +1,9 @@
 import ast
 
 from dataclasses import dataclass, field
+from collections.abc import Iterator
 from enum import StrEnum
-from typing import Iterator, Protocol
+from typing import Protocol
 
 
 AnnotationType = ast.Name | ast.BitOr | ast.Subscript

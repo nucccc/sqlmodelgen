@@ -1,4 +1,5 @@
-from typing import Callable
+from collections.abc import Callable
+
 from sqlmodelgen.codegen.code_ir.code_ir import ModelIR
 from sqlmodelgen.codegen.code_ir.build_rels import add_relationships_attrs
 from sqlmodelgen.codegen.code_ir.build_col_attrs import attribute_from_col

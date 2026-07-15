@@ -3,7 +3,7 @@ this module generates sqlmode code from an intermediate representation
 '''
 
 import ast
-from typing import Callable, Iterable
+from collections.abc import Callable, Iterable
 
 from sqlmodelgen.ir.ir import SchemaIR
 from sqlmodelgen.codegen.code_ir.build_cir import build_model_irs

@@ -4,7 +4,7 @@
 import psycopg
 
 from dataclasses import dataclass
-from typing import Generator, Iterator
+from collections.abc import Generator, Iterator
 
 from sqlmodelgen.ir.ir import (
 	ColIR,

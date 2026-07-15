@@ -1,4 +1,4 @@
-from typing import Callable
+from collections.abc import Callable
 
 from .codegen.codegen import gen_code
 from .ir.parse.ir_parse import ir_parse

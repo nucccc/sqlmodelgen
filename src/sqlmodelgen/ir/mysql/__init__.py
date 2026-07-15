@@ -1,4 +1,4 @@
-from typing import Iterator
+from collections.abc import Iterator
 
 from mysql.connector.connection_cext import CMySQLConnection
 from mysql.connector.cursor_cext import CMySQLCursor
