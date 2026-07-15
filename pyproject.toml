@@ -3,7 +3,7 @@ name = "sqlmodelgen"
 authors = [
   {name = "Domenico Nucera"}
 ]
-version = "0.0.20"
+version = "0.0.21"
 description = "Generate SQLModel code from SQL"
 license-files = ['LICENSE']
 readme = "README.md"
