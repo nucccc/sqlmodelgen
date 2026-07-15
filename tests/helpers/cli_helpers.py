@@ -18,6 +18,17 @@ def launch_cli_in_tmpfile(args: list[str]) -> str:
     # TODO: use a random filename generator
     tpath = Path(tempdir) / "f.py"
 
-    main_cli(args + ['-o', str(tpath)])
+    main_cli(
+        args
+        + [
+            # We must not include the header as we use non-deterministic
+            # temporary filenames.
+            # This makes checking the output strings a little tricky.
+            # So we just ignore the header!
+            '--no-header',
+            '-o',
+            str(tpath),
+        ]
+    )
 
     return tpath.read_text()
