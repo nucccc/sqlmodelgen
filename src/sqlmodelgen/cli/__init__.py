@@ -16,7 +16,7 @@ def main_cli(args: list[str]):
     parser = _build_parser()
     parsed = parser.parse_args(args)
 
-    _act_on_args(parsed, args, parser)
+    _act_on_args(parsed, args, parser.format_usage())
 
 
 def _build_parser() -> argparse.ArgumentParser:
