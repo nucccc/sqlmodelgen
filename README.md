@@ -4,8 +4,8 @@
 
 | Name                                                            |    Stmts |     Miss |   Cover |   Missing |
 |---------------------------------------------------------------- | -------: | -------: | ------: | --------: |
-| src/sqlmodelgen/\_\_init\_\_.py                                 |        6 |        0 |    100% |           |
-| src/sqlmodelgen/cli/\_\_init\_\_.py                             |       54 |        6 |     89% |58, 64, 70-72, 87, 93 |
+| src/sqlmodelgen/\_\_init\_\_.py                                 |        8 |        0 |    100% |           |
+| src/sqlmodelgen/cli/\_\_init\_\_.py                             |       58 |        7 |     88% |66, 73, 79-81, 96, 99, 111 |
 | src/sqlmodelgen/codegen/cir\_to\_full\_ast/code\_ir\_to\_ast.py |       30 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/cir\_to\_full\_ast/to\_ast\_imports.py  |       36 |        0 |    100% |           |
 | src/sqlmodelgen/codegen/code\_ir/build\_cir.py                  |       23 |        0 |    100% |           |
@@ -26,7 +26,7 @@
 | src/sqlmodelgen/sqlmodelgen.py                                  |       18 |        0 |    100% |           |
 | src/sqlmodelgen/utils/dependency\_checker.py                    |       12 |        4 |     67% |4-5, 12-13 |
 | src/sqlmodelgen/utils/mysql\_parse.py                           |       17 |        2 |     88% |    19, 29 |
-| **TOTAL**                                                       |  **714** |   **24** | **97%** |           |
+| **TOTAL**                                                       |  **720** |   **25** | **97%** |           |
 
 
 ## Setup coverage badge
